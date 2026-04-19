@@ -24,11 +24,24 @@ ruff check app/ tests/
 ruff format app/ tests/
 ```
 
-Frontend (once scaffolded) runs from `frontend/`:
+Frontend runs from `frontend/`:
 ```bash
-npm install && npm run dev      # Vite dev server
+npm install && npm run dev      # Vite dev server (proxies API to localhost:8000)
 npm run build                   # production build → served by FastAPI as static files
+npx vitest run                  # frontend unit tests
 ```
+
+## Recommended OpenRouter Model
+
+Set `OPENROUTER_MODEL` in `.env`. Best **free** options ranked for this use case (structured JSON scoring):
+
+| Model ID | Why good |
+|---|---|
+| `deepseek/deepseek-chat-v3-0324:free` | **Top pick** — reliable JSON, strong reasoning, fast |
+| `meta-llama/llama-3.3-70b-instruct:free` | Excellent instruction following, 70B capability |
+| `google/gemma-3-27b-it:free` | Solid fallback, good context window |
+
+The matchmaker uses `response_format: {type: "json_object"}` so any model that supports that mode works best. DeepSeek V3 is the strongest free option for structured output as of 2026.
 
 ## Architecture
 
@@ -55,6 +68,8 @@ APScheduler (every SCAN_INTERVAL_HOURS)
 | `backend/app/notifications/` | Telegram bot sender |
 | `backend/app/routers/` | FastAPI route handlers (matches, tracker, companies, cv-variants, scan) |
 | `backend/app/main.py` | App factory, scheduler setup, static file mount |
+| `backend/app/scheduler.py` | APScheduler orchestrator — ties fetch → normalize → score → notify |
+| `backend/user_profile.md` | Candidate profile fed to matchmaker — fill this in before first run |
 | `frontend/src/` | React 18 + Vite + Tailwind mobile PWA |
 
 ### Key design decisions
@@ -65,6 +80,8 @@ APScheduler (every SCAN_INTERVAL_HOURS)
 - **content_hash dedup.** Jobs are never re-processed once seen; hash is on `company_id + title + url`.
 - **Near misses.** Jobs scored below `MATCH_THRESHOLD` are saved with `status=low_match` — visible in PWA but no Telegram sent.
 - **OpenRouter retries.** Max 3 retries via `tenacity`; failed matches are queued for next scheduler tick.
+- **Duplicate Telegram guard.** `Match.telegram_message_id` is set after first send; subsequent calls are a no-op.
+- **ATS pre-fill.** `POST /matches/{id}/applied` constructs a pre-filled Greenhouse/Lever URL from `APPLICANT_*` env vars.
 
 ### ATS ingestion strategy
 
@@ -85,7 +102,7 @@ Copy `backend/.env.example` to `backend/.env`. Key vars:
 
 | Var | Purpose |
 |---|---|
-| `OPENROUTER_API_KEY` / `OPENROUTER_MODEL` | LLM provider |
+| `OPENROUTER_API_KEY` / `OPENROUTER_MODEL` | LLM provider (see model table above) |
 | `MATCH_THRESHOLD` | Score cutoff (0–100, default 65) |
 | `SCAN_INTERVAL_HOURS` | Scheduler frequency |
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | Notifications |
@@ -93,25 +110,56 @@ Copy `backend/.env.example` to `backend/.env`. Key vars:
 | `DATABASE_URL` | SQLite path (`sqlite:///./jobfinder.db`) |
 | `APPLICANT_*` | Name/email/LinkedIn/portfolio for ATS pre-fill links |
 
+Frontend env: copy `frontend/.env.example` to `frontend/.env.local` (gitignored):
+```
+VITE_API_URL=http://<vm-ip>:8000
+VITE_ACCESS_TOKEN=<same as PWA_ACCESS_TOKEN>
+```
+
 ### API surface (FastAPI)
 
 ```
-GET/POST       /companies, /companies/{id}
-GET/POST/DEL   /cv-variants, /cv-variants/{id}
-GET            /matches, /matches/{id}
-POST           /matches/{id}/skip, /matches/{id}/applied
-GET            /tracker
-PATCH          /applications/{id}
-POST           /trigger-scan
-GET            /scan-status
+GET            /matches                  Pending matches (status=new), score desc
+GET            /matches/near-misses      Below-threshold matches (status=low_match)
+GET            /matches/{id}             Detail + ambiguous_variants if CV tie
+POST           /matches/{id}/skip        → status=skipped
+POST           /matches/{id}/applied     → status=applied, creates Application, returns pre-filled ats_url
+GET            /companies                Watchlist
+POST           /companies                Add company
+PATCH          /companies/{id}           Update (toggle active, fix slug)
+DELETE         /companies/{id}           Remove
+GET            /cv-variants              Active variants
+POST           /cv-variants              Add variant
+DELETE         /cv-variants/{id}         Deactivate (soft delete)
+GET            /tracker                  All applications with joined job/company
+PATCH          /applications/{id}        Update outcome_status / notes
+POST           /trigger-scan             Manual scan (background task)
+GET            /scan-status              Last scan time, job count, is_running
+GET            /health                   Liveness check
 ```
 
-### Implementation phases (plan: `docs/superpowers/plans/2026-04-18-job-finder-agent-plan.md`)
+### Git history (phase-by-phase)
 
-1. Scaffold + Config + Database
-2. Ingestion layer (ATS APIs + Scrapling)
-3. Pipeline (normalizer, dedup, AI matchmaker, CV selector)
-4. Notifications (Telegram)
-5. REST API (FastAPI routers)
-6. React PWA (mobile UI)
-7. Deployment (systemd, VM setup)
+```
+1937a94  docs: add design spec and implementation plan
+314dbf2  chore: scaffold project structure and dependencies
+32f507c  feat: add config, database engine, and all SQLModel models
+c227aed  feat: add ingestion engine (ATS APIs, Scrapling, normalizer)
+c1d8956  feat: add AI pipeline (OpenRouter matchmaker + CV selector)
+6f33a91  feat: add Telegram notifications and APScheduler orchestrator
+9256683  feat: add FastAPI app with all API routers
+922bf1c  chore: add systemd service and deploy script
+4d88d46  feat: add React PWA frontend (Vite + Tailwind + Vitest)
+```
+
+### Deployment
+
+```bash
+# On VM — first time
+git clone <repo> ~/JobFinderAgent
+cd ~/JobFinderAgent && bash scripts/deploy.sh
+
+# Service management
+sudo systemctl status jobfinder
+sudo journalctl -u jobfinder -f
+```

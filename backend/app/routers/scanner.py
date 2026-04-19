@@ -1,0 +1,25 @@
+from fastapi import APIRouter, Depends, BackgroundTasks
+from sqlmodel import Session
+
+from app.auth import verify_token
+from app.database import get_session
+from app.scheduler import run_full_scan, scan_state
+
+router = APIRouter(dependencies=[Depends(verify_token)])
+
+
+@router.post("/trigger-scan")
+async def trigger_scan(
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_session),
+):
+    if scan_state["is_running"]:
+        return {"message": "Scan already in progress"}
+
+    background_tasks.add_task(run_full_scan, session)
+    return {"message": "Scan triggered"}
+
+
+@router.get("/scan-status")
+async def get_scan_status():
+    return scan_state

@@ -30,6 +30,22 @@ scan_state = {
 }
 
 
+EXCLUDED_TITLE_KEYWORDS = [
+    "account manager", "account executive", "sales manager", "sales representative",
+    "sales development", "business development", "customer success", "customer support",
+    "support engineer", "technical support", "sdr", "bdr", "recruiter", "hr ",
+    "human resources", "marketing manager", "content manager", "social media",
+    "finance manager", "accountant", "legal", "paralegal", "office manager",
+    "operations manager", "product designer", "ux designer", "ui designer",
+    "graphic designer",
+]
+
+
+def _is_excluded_title(title: str) -> bool:
+    lower = title.lower()
+    return any(kw in lower for kw in EXCLUDED_TITLE_KEYWORDS)
+
+
 def _load_user_profile() -> str:
     profile_path = Path(__file__).parent.parent / "user_profile.md"
     if profile_path.exists():
@@ -58,8 +74,8 @@ async def _fetch_jobs_for_company(company: Company) -> list[dict]:
         return await fetch_greenhouse_jobs(company.ats_slug)
     elif company.ats_type == "lever" and company.ats_slug:
         return await fetch_lever_jobs(company.ats_slug)
-    elif company.ats_type == "linkedin" and company.linkedin_url:
-        return await fetch_linkedin_jobs(company.linkedin_url)
+    elif company.ats_type == "linkedin":
+        return await fetch_linkedin_jobs(company.name)
     elif company.career_page_url:
         return await fetch_career_page(company.career_page_url, company.website or "")
     else:
@@ -73,6 +89,14 @@ async def run_scan_for_company(company: Company, session: Session) -> list[dict]
         return []
 
     new_jobs = normalize_and_deduplicate(raw_jobs, company.id, session)
+    if not new_jobs:
+        return []
+
+    filtered_jobs = [j for j in new_jobs if not _is_excluded_title(j.title)]
+    skipped = len(new_jobs) - len(filtered_jobs)
+    if skipped:
+        logger.info(f"Pre-filter skipped {skipped} irrelevant titles for {company.name}")
+    new_jobs = filtered_jobs
     if not new_jobs:
         return []
 

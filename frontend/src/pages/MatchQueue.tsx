@@ -43,12 +43,15 @@ export default function MatchQueue() {
 
   const handleConfirm = async () => {
     if (!applyingId) return;
-    await api.applyMatch(applyingId, undefined, chosenVariantId ?? undefined);
+    const result = await api.applyMatch(applyingId, undefined, chosenVariantId ?? undefined);
     setAppliedIds(s => new Set([...s, applyingId]));
     setConfirmOpen(false);
     setApplyingId(null);
     setChosenVariantId(null);
     refresh();
+    if (result.ats_url) {
+      window.open(result.ats_url, '_blank', 'noopener,noreferrer');
+    }
   };
 
   if (loading) {

@@ -1,26 +1,32 @@
-import { useState, useEffect } from "react";
-import { api } from "../api/client";
-import type { Company } from "../types";
+import { useState, useEffect } from 'react';
+import { Plus, Power, Trash2, Building2 } from 'lucide-react';
+import { api } from '../api/client';
+import type { Company } from '../types';
+
+const ATS_TYPES = ['greenhouse', 'lever', 'workday', 'custom', 'linkedin'] as const;
+
+const emptyForm = {
+  name: '', ats_type: 'greenhouse', ats_slug: '', career_page_url: '', linkedin_url: '',
+};
 
 export default function Companies() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: "", ats_type: "greenhouse", ats_slug: "", career_page_url: "" });
+  const [form, setForm] = useState(emptyForm);
 
   const refresh = () => api.getCompanies().then(setCompanies);
-
-  useEffect(() => {
-    refresh();
-  }, []);
+  useEffect(() => { refresh(); }, []);
 
   const handleAdd = async () => {
+    if (!form.name.trim()) return;
     await api.addCompany(form);
-    setForm({ name: "", ats_type: "greenhouse", ats_slug: "", career_page_url: "" });
+    setForm(emptyForm);
     setShowAdd(false);
     refresh();
   };
 
   const handleDelete = async (id: number) => {
+    if (!confirm('Remove this company from your watchlist?')) return;
     await api.deleteCompany(id);
     refresh();
   };
@@ -30,85 +36,166 @@ export default function Companies() {
     refresh();
   };
 
+  const needsSlug = form.ats_type === 'greenhouse' || form.ats_type === 'lever';
+  const needsCareerUrl = form.ats_type === 'workday' || form.ats_type === 'custom';
+  const needsLinkedIn = form.ats_type === 'linkedin';
+  const active = companies.filter(c => c.active).length;
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', background: '#0f172a', border: '1px solid #374151',
+    borderRadius: 10, padding: '10px 12px', color: '#f9fafb', fontSize: 14,
+    fontFamily: 'inherit', outline: 'none',
+  };
+
   return (
-    <div className="pb-20 pt-4 px-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">Watchlist</h1>
+    <div style={{ paddingBottom: 96, paddingTop: 24, paddingInline: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
+        <div>
+          <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 700, letterSpacing: '-0.03em' }}>Watchlist</h1>
+          <p style={{ color: '#4b5563', fontSize: 13, marginTop: 2 }}>
+            {active} active · {companies.length} total
+          </p>
+        </div>
         <button
-          onClick={() => setShowAdd(!showAdd)}
-          className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium"
+          onClick={() => setShowAdd(v => !v)}
+          style={{
+            height: 36, background: '#6366f1', color: '#fff', border: 'none',
+            borderRadius: 10, padding: '0 14px', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 6,
+            fontSize: 13, fontWeight: 600, fontFamily: 'inherit', flexShrink: 0,
+          }}
         >
-          + Add
+          <Plus size={13} color="#fff" /> Add
         </button>
       </div>
 
       {showAdd && (
-        <div className="bg-gray-900 rounded-xl p-4 border border-gray-800 mb-4 space-y-3">
+        <div style={{
+          background: '#111827', border: '1px solid #1f2937', borderRadius: 16,
+          padding: 14, marginBottom: 10,
+        }}>
+          <div style={{ color: '#4b5563', fontSize: 12, marginBottom: 8 }}>New company</div>
           <input
-            placeholder="Company name"
             value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full bg-gray-800 rounded-lg px-3 py-2 text-sm"
+            onChange={e => setForm({ ...form, name: e.target.value })}
+            placeholder="Company name"
+            style={{ ...inputStyle, marginBottom: 8 }}
           />
-          <select
-            value={form.ats_type}
-            onChange={(e) => setForm({ ...form, ats_type: e.target.value })}
-            className="w-full bg-gray-800 rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="greenhouse">Greenhouse</option>
-            <option value="lever">Lever</option>
-            <option value="workday">Workday</option>
-            <option value="custom">Custom</option>
-            <option value="linkedin">LinkedIn</option>
-          </select>
-          <input
-            placeholder="ATS slug (e.g. vercel)"
-            value={form.ats_slug}
-            onChange={(e) => setForm({ ...form, ats_slug: e.target.value })}
-            className="w-full bg-gray-800 rounded-lg px-3 py-2 text-sm"
-          />
-          <input
-            placeholder="Career page URL (for custom/workday)"
-            value={form.career_page_url}
-            onChange={(e) => setForm({ ...form, career_page_url: e.target.value })}
-            className="w-full bg-gray-800 rounded-lg px-3 py-2 text-sm"
-          />
-          <button
-            onClick={handleAdd}
-            className="w-full py-2 rounded-lg bg-green-600 text-white text-sm font-medium"
-          >
-            Save
-          </button>
+
+          <div style={{ display: 'flex', gap: 5, marginBottom: 10 }}>
+            {ATS_TYPES.map(t => (
+              <button key={t} onClick={() => setForm({ ...form, ats_type: t })} style={{
+                flex: 1, height: 28,
+                background: form.ats_type === t ? '#1e1b4b' : '#1f2937',
+                border: `1px solid ${form.ats_type === t ? '#6366f1' : '#374151'}`,
+                borderRadius: 8, color: form.ats_type === t ? '#818cf8' : '#4b5563',
+                fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                textTransform: 'capitalize',
+              }}>{t}</button>
+            ))}
+          </div>
+
+          {needsSlug && (
+            <input
+              placeholder={`${form.ats_type === 'greenhouse' ? 'Greenhouse' : 'Lever'} slug (e.g. vercel)`}
+              value={form.ats_slug}
+              onChange={e => setForm({ ...form, ats_slug: e.target.value })}
+              style={{ ...inputStyle, marginBottom: 8 }}
+            />
+          )}
+          {needsCareerUrl && (
+            <input type="url" placeholder="Career page URL"
+              value={form.career_page_url}
+              onChange={e => setForm({ ...form, career_page_url: e.target.value })}
+              style={{ ...inputStyle, marginBottom: 8 }}
+            />
+          )}
+          {needsLinkedIn && (
+            <input type="url" placeholder="LinkedIn company URL"
+              value={form.linkedin_url}
+              onChange={e => setForm({ ...form, linkedin_url: e.target.value })}
+              style={{ ...inputStyle, marginBottom: 8 }}
+            />
+          )}
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => { setShowAdd(false); setForm(emptyForm); }}
+              style={{
+                flex: 1, height: 38, background: '#1f2937', color: '#6b7280',
+                border: 'none', borderRadius: 12, cursor: 'pointer',
+                fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
+              }}
+            >Cancel</button>
+            <button
+              onClick={handleAdd}
+              disabled={!form.name.trim()}
+              style={{
+                flex: 1, height: 38, background: '#6366f1', color: '#fff',
+                border: 'none', borderRadius: 12, cursor: 'pointer',
+                fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
+                opacity: form.name.trim() ? 1 : 0.4,
+              }}
+            >Add</button>
+          </div>
         </div>
       )}
 
       {companies.length === 0 ? (
-        <p className="text-center text-gray-500 mt-8">No companies in your watchlist.</p>
+        <div style={{ textAlign: 'center', padding: '64px 0' }}>
+          <div style={{
+            background: '#1a1f2e', border: '1px solid #1f2937', borderRadius: '50%',
+            width: 72, height: 72, display: 'flex', alignItems: 'center',
+            justifyContent: 'center', margin: '0 auto 16px',
+          }}>
+            <Building2 size={30} color="#374151" />
+          </div>
+          <div style={{ color: '#f9fafb', fontWeight: 600, fontSize: 16, marginBottom: 6 }}>No companies yet</div>
+          <div style={{ color: '#4b5563', fontSize: 13 }}>Add companies to start scanning for jobs.</div>
+        </div>
       ) : (
-        <div className="space-y-2">
-          {companies.map((co) => (
-            <div
-              key={co.id}
-              className="flex items-center justify-between bg-gray-900 rounded-lg p-3 border border-gray-800"
-            >
-              <div>
-                <p className={`font-medium text-sm ${co.active ? "" : "text-gray-500 line-through"}`}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {companies.map(co => (
+            <div key={co.id} style={{
+              background: '#111827', border: '1px solid #1f2937',
+              borderRadius: 16, padding: '12px 14px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+            }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ color: co.active ? '#f9fafb' : '#4b5563', fontWeight: 600, fontSize: 15 }}>
                   {co.name}
-                </p>
-                <p className="text-xs text-gray-500">{co.ats_type}{co.ats_slug ? ` / ${co.ats_slug}` : ""}</p>
+                </div>
+                <div style={{ color: '#374151', fontSize: 12 }}>
+                  {co.ats_type}{co.ats_slug ? ` · ${co.ats_slug}` : ''}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                 <button
                   onClick={() => handleToggle(co)}
-                  className={`text-xs px-2 py-1 rounded ${co.active ? "bg-green-800 text-green-300" : "bg-gray-800 text-gray-500"}`}
+                  style={{
+                    background: co.active ? '#031a0e' : '#1a1f2e',
+                    border: `1px solid ${co.active ? '#166534' : '#1f2937'}`,
+                    borderRadius: 8, padding: '6px 10px', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    fontSize: 12, fontWeight: 600,
+                    color: co.active ? '#22c55e' : '#4b5563',
+                    fontFamily: 'inherit',
+                  }}
+                  aria-label={co.active ? 'Pause' : 'Activate'}
                 >
-                  {co.active ? "Active" : "Paused"}
+                  <Power size={11} color={co.active ? '#22c55e' : '#4b5563'} />
+                  {co.active ? 'Active' : 'Paused'}
                 </button>
                 <button
                   onClick={() => handleDelete(co.id)}
-                  className="text-xs px-2 py-1 rounded bg-red-900/50 text-red-400"
+                  style={{
+                    background: '#1a0a0a', border: '1px solid #3f1010',
+                    borderRadius: 8, padding: 7, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center',
+                  }}
+                  aria-label={`Remove ${co.name}`}
                 >
-                  Remove
+                  <Trash2 size={14} color="#ef4444" />
                 </button>
               </div>
             </div>

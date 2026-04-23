@@ -21,11 +21,11 @@ describe("MatchCard", () => {
     expect(screen.getByText("Vercel")).toBeInTheDocument();
   });
 
-  it("shows score badge", () => {
+  it("shows score ring", () => {
     render(
       <MatchCard match={mockMatch} onTap={vi.fn()} onSkip={vi.fn()} onApply={vi.fn()} />
     );
-    expect(screen.getByText("88%")).toBeInTheDocument();
+    expect(screen.getByText("88")).toBeInTheDocument();
   });
 
   it("calls onSkip when Skip is clicked", () => {

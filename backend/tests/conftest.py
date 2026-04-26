@@ -1,6 +1,12 @@
+import os
+
 import pytest
 from sqlmodel import SQLModel, Session, create_engine
 from fastapi.testclient import TestClient
+
+# Ensure required env vars are set before any app module is imported at
+# collection time (Settings() is instantiated at module level in config.py).
+os.environ.setdefault("SESSION_SECRET_KEY", "test-secret")
 
 import app.models  # noqa: F401 — register all models with metadata
 

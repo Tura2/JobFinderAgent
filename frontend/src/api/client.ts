@@ -1,12 +1,11 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "";
-const TOKEN = import.meta.env.VITE_ACCESS_TOKEN || "";
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const resp = await fetch(`${BASE_URL}${path}`, {
     ...init,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${TOKEN}`,
       ...init?.headers,
     },
   });
@@ -59,4 +58,6 @@ export const api = {
 
   triggerScan: () => apiFetch<{ message: string }>("/trigger-scan", { method: "POST" }),
   getScanStatus: () => apiFetch<import("../types").ScanStatus>("/scan-status"),
+
+  getConfig: () => apiFetch<{ linkedin_url: string }>("/config"),
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Play, RefreshCw, CheckCircle2, LogOut } from 'lucide-react';
 import { api } from '../api/client';
 import type { ScanStatus } from '../types';
 
@@ -19,6 +19,7 @@ const THRESHOLDS = [
 
 export default function Settings() {
   const [scanStatus, setScanStatus] = useState<ScanStatus | null>(null);
+  const [linkedinUrl, setLinkedinUrl] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [prog, setProg] = useState(0);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -31,6 +32,10 @@ export default function Settings() {
   };
 
   useEffect(() => { fetchStatus(); }, []);
+
+  useEffect(() => {
+    api.getConfig().then(c => setLinkedinUrl(c.linkedin_url)).catch(() => {});
+  }, []);
 
   const startProgress = () => {
     setProg(0);
@@ -77,6 +82,11 @@ export default function Settings() {
       setScanning(false);
       setProg(0);
     }
+  };
+
+  const handleLogout = () => {
+    fetch('/auth/logout', { method: 'POST', credentials: 'include' })
+      .finally(() => { window.location.href = '/login'; });
   };
 
   const isRunning = scanning || scanStatus?.is_running;
@@ -176,10 +186,40 @@ export default function Settings() {
         ))}
       </div>
 
+      {/* Account */}
+      <div style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: 16, padding: 16, marginBottom: 10 }}>
+        <div style={{ color: '#f9fafb', fontWeight: 600, fontSize: 15, marginBottom: 12 }}>Account</div>
+        <button
+          onClick={handleLogout}
+          style={{
+            width: '100%', height: 46, fontSize: 14, borderRadius: 12,
+            border: '1px solid #374151', background: 'transparent',
+            color: '#9ca3af', cursor: 'pointer', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', gap: 8,
+            fontWeight: 600, fontFamily: 'inherit',
+          }}
+        >
+          <LogOut size={15} />
+          Log out
+        </button>
+      </div>
+
       {/* About */}
       <div style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: 16, padding: 16 }}>
         <div style={{ color: '#f9fafb', fontWeight: 600, fontSize: 14, marginBottom: 6 }}>JobFinder Agent v0.1.0</div>
-        <div style={{ color: '#4b5563', fontSize: 13 }}>Autonomous job hunting pipeline</div>
+        <div style={{ color: '#4b5563', fontSize: 13, marginBottom: linkedinUrl ? 12 : 0 }}>
+          Autonomous job hunting pipeline
+        </div>
+        {linkedinUrl && (
+          <a
+            href={linkedinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#6366f1', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}
+          >
+            Developed by Offir Tura
+          </a>
+        )}
       </div>
 
       <style>{`

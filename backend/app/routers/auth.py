@@ -1,4 +1,5 @@
 import asyncio
+import hmac as _hmac
 from pathlib import Path
 
 from fastapi import APIRouter, Form
@@ -9,7 +10,7 @@ from app.middleware.session import make_session_cookie
 
 router = APIRouter()
 
-_LOGIN_HTML = (Path(__file__).parent.parent / "login.html").read_text()
+_LOGIN_HTML = (Path(__file__).parent.parent / "login.html").read_text(encoding="utf-8")
 
 
 @router.get("/login", response_class=HTMLResponse, include_in_schema=False)
@@ -19,7 +20,7 @@ async def login_page():
 
 @router.post("/auth/login")
 async def login(password: str = Form(...)):
-    if password != settings.pwa_access_token:
+    if not _hmac.compare_digest(password, settings.pwa_access_token):
         await asyncio.sleep(1)
         return RedirectResponse("/login?error=1", status_code=302)
     cookie_val = make_session_cookie(settings.session_secret_key, settings.session_max_age_days)
@@ -37,7 +38,7 @@ async def login(password: str = Form(...)):
 @router.post("/auth/logout")
 async def logout():
     resp = RedirectResponse("/login", status_code=302)
-    resp.delete_cookie("session")
+    resp.delete_cookie("session", httponly=True, samesite="strict")
     return resp
 
 

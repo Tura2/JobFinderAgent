@@ -32,6 +32,9 @@ def test_logout_clears_cookie_and_redirects(client):
     resp = client.post("/auth/logout")
     assert resp.status_code == 302
     assert resp.headers["location"] == "/login"
+    set_cookie = resp.headers.get("set-cookie", "")
+    assert "session=" in set_cookie
+    assert "max-age=0" in set_cookie.lower()
 
 
 def test_config_returns_linkedin_url(client):

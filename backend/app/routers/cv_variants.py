@@ -4,11 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from app.auth import verify_token
 from app.database import get_session
 from app.models.cv_variant import CVVariant
 
-router = APIRouter(dependencies=[Depends(verify_token)])
+router = APIRouter()
 
 
 class CVVariantCreate(BaseModel):

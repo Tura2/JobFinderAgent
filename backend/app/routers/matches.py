@@ -6,7 +6,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from app.auth import verify_token
 from app.config import settings
 from app.database import get_session
 from app.models.company import Company
@@ -15,7 +14,7 @@ from app.models.match import Match
 from app.models.cv_variant import CVVariant
 from app.models.application import Application
 
-router = APIRouter(dependencies=[Depends(verify_token)])
+router = APIRouter()
 
 
 # --- Helpers ---

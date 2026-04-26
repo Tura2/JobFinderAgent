@@ -31,3 +31,54 @@ def test_malformed_cookie_rejected():
     assert verify_session_cookie(SECRET, "notacookie") is False
     assert verify_session_cookie(SECRET, "") is False
     assert verify_session_cookie(SECRET, ":") is False
+
+
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+from app.middleware.session import SessionMiddleware
+
+
+def _make_app() -> FastAPI:
+    import app.config as cfg
+    cfg.settings.session_secret_key = SECRET
+
+    test_app = FastAPI()
+    test_app.add_middleware(SessionMiddleware)
+
+    @test_app.get("/protected")
+    async def protected():
+        return {"ok": True}
+
+    @test_app.get("/health")
+    async def health():
+        return {"ok": True}
+
+    return test_app
+
+
+def test_middleware_redirects_without_cookie():
+    client = TestClient(_make_app(), follow_redirects=False)
+    resp = client.get("/protected")
+    assert resp.status_code == 302
+    assert resp.headers["location"] == "/login"
+
+
+def test_middleware_allows_valid_cookie():
+    cookie = make_session_cookie(SECRET, 30)
+    client = TestClient(_make_app(), follow_redirects=False)
+    client.cookies.set("session", cookie)
+    resp = client.get("/protected")
+    assert resp.status_code == 200
+
+
+def test_middleware_redirects_invalid_cookie():
+    client = TestClient(_make_app(), follow_redirects=False)
+    client.cookies.set("session", "bogus:value")
+    resp = client.get("/protected")
+    assert resp.status_code == 302
+
+
+def test_middleware_allows_public_path_without_cookie():
+    client = TestClient(_make_app(), follow_redirects=False)
+    resp = client.get("/health")
+    assert resp.status_code == 200

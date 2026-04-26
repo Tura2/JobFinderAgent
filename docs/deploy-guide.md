@@ -31,7 +31,7 @@ ssh ubuntu@<VM_IP>
 Then on the VM:
 
 ```bash
-git clone https://github.com/<your-user>/JobFinderAgent ~/JobFinderAgent
+git clone https://github.com/Tura2/JobFinderAgent ~/JobFinderAgent
 cd ~/JobFinderAgent
 bash scripts/deploy.sh
 ```
@@ -140,7 +140,7 @@ Open the PWA in your browser: `http://<VM_IP>:8000`
 ## Subsequent deploys (after first setup)
 
 ```bash
-# Local: push new commits to main
+# Local: push new commits to main (repo: https://github.com/Tura2/JobFinderAgent)
 git checkout main && git merge master && git push origin main && git checkout master
 
 # On VM:

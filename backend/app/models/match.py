@@ -14,4 +14,5 @@ class Match(SQLModel, table=True):
     status: str = "new"  # low_match|new|reviewed|skipped|applied|rejected|no_response|interview|offer
     matched_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     reviewed_at: Optional[datetime] = None
+    score_breakdown: Optional[str] = Field(default=None)  # JSON: {tech_stack, role_type, domain, seniority, location}
     telegram_message_id: Optional[int] = Field(default=None)

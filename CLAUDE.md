@@ -37,11 +37,13 @@ Set `OPENROUTER_MODEL` in `.env`. Best **free** options ranked for this use case
 
 | Model ID | Why good |
 |---|---|
-| `deepseek/deepseek-chat-v3-0324:free` | **Top pick** — reliable JSON, strong reasoning, fast |
+| `openai/gpt-oss-120b:free` | **Current pick** — strong reasoning, reliable JSON output |
 | `meta-llama/llama-3.3-70b-instruct:free` | Excellent instruction following, 70B capability |
 | `google/gemma-3-27b-it:free` | Solid fallback, good context window |
 
-The matchmaker uses `response_format: {type: "json_object"}` so any model that supports that mode works best. DeepSeek V3 is the strongest free option for structured output as of 2026.
+> **Note (2026-04-19):** DeepSeek free tier was removed from OpenRouter — do not use `deepseek/*:free` routes.
+
+The matchmaker uses `response_format: {type: "json_object"}` so any model that supports that mode works best.
 
 ## Architecture
 
@@ -163,3 +165,21 @@ cd ~/JobFinderAgent && bash scripts/deploy.sh
 sudo systemctl status jobfinder
 sudo journalctl -u jobfinder -f
 ```
+
+> **Branch note:** dev branch is `master`; `scripts/deploy.sh` pulls from `main`. Push to `main` before deploying.
+
+### DB schema changes
+
+No Alembic — add columns manually on existing DBs:
+```bash
+sqlite3 backend/jobfinder.db "ALTER TABLE <table> ADD COLUMN <col> <type> DEFAULT NULL;"
+```
+Example: `score_breakdown TEXT DEFAULT NULL` was added to `matches` in 2026-04.
+
+### Company seeding
+
+`python scripts/seed_companies.py` bulk-inserts from `scripts/companies_seed.json` via the REST API.
+- Seed file field is `name` (not `company_name`)
+- Token auto-loaded from `backend/.env` (`PWA_ACCESS_TOKEN`)
+- Use `--dry-run` to preview before inserting
+- 68 Israeli tech companies pre-loaded in `scripts/companies_seed.json`

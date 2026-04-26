@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Monday.com",
+    "city": "Tel Aviv",
+    "website": "https://monday.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "mondaydotcom",
+    "linkedin_url": "https://www.linkedin.com/company/monday-com",
+    "career_page_url": "https://boards.greenhouse.io/mondaydotcom"
+  },
+  {
+    "name": "Wix",
+    "city": "Tel Aviv",
+    "website": "https://wix.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "wix",
+    "linkedin_url": "https://www.linkedin.com/company/wix-com",
+    "career_page_url": "https://boards.greenhouse.io/wix"
+  },
+  {
+    "name": "Check Point Software",
+    "city": "Tel Aviv",
+    "website": "https://checkpoint.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/check-point-software-technologies",
+    "career_page_url": "https://checkpoint.com/careers"
+  },
+  {
+    "name": "NICE Systems",
+    "city": "Ra'anana",
+    "website": "https://nice.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/nice-systems",
+    "career_page_url": "https://nice.com/careers"
+  }
+]

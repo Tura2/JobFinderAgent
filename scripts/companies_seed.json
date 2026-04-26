@@ -1,0 +1,632 @@
+[
+  {
+    "name": "JFrog",
+    "city": "Netanya",
+    "website": "https://jfrog.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "jfrog",
+    "linkedin_url": "https://www.linkedin.com/company/jfrog-ltd",
+    "career_page_url": "https://join.jfrog.com/"
+  },
+  {
+    "name": "Outbrain",
+    "city": "Netanya",
+    "website": "https://www.outbrain.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "outbrain",
+    "linkedin_url": "https://www.linkedin.com/company/outbrain",
+    "career_page_url": "https://www.outbrain.com/careers/"
+  },
+  {
+    "name": "AppsFlyer",
+    "city": "Herzliya",
+    "website": "https://www.appsflyer.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "appsflyer",
+    "linkedin_url": "https://www.linkedin.com/company/appsflyer",
+    "career_page_url": "https://careers.appsflyer.com/"
+  },
+  {
+    "name": "Microsoft Israel R&D",
+    "city": "Ra'anana",
+    "website": "https://microsoft.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/microsoft",
+    "career_page_url": "https://careers.microsoft.com/us/en/search-results?l=Israel"
+  },
+  {
+    "name": "Cloudinary",
+    "city": "Petah Tikva",
+    "website": "https://cloudinary.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "cloudinary",
+    "linkedin_url": "https://www.linkedin.com/company/cloudinary",
+    "career_page_url": "https://cloudinary.com/careers"
+  },
+  {
+    "name": "Monday.com",
+    "city": "Tel Aviv",
+    "website": "https://monday.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "mondaydotcom",
+    "linkedin_url": "https://www.linkedin.com/company/mondaydotcom",
+    "career_page_url": "https://monday.com/careers"
+  },
+  {
+    "name": "Wix",
+    "city": "Tel Aviv",
+    "website": "https://wix.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/wix",
+    "career_page_url": "https://www.wix.com/jobs/locations/israel/positions"
+  },
+  {
+    "name": "Fiverr",
+    "city": "Tel Aviv",
+    "website": "https://fiverr.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "fiverr",
+    "linkedin_url": "https://www.linkedin.com/company/fiverr",
+    "career_page_url": "https://www.fiverr.com/jobs"
+  },
+  {
+    "name": "Snyk",
+    "city": "Tel Aviv",
+    "website": "https://snyk.io",
+    "ats_type": "lever",
+    "ats_slug": "snyk",
+    "linkedin_url": "https://www.linkedin.com/company/snyk",
+    "career_page_url": "https://snyk.io/careers/"
+  },
+  {
+    "name": "Gong",
+    "city": "Ramat Gan",
+    "website": "https://www.gong.io",
+    "ats_type": "greenhouse",
+    "ats_slug": "gong",
+    "linkedin_url": "https://www.linkedin.com/company/gong-io",
+    "career_page_url": "https://www.gong.io/careers/"
+  },
+  {
+    "name": "Taboola",
+    "city": "Ramat Gan",
+    "website": "https://www.taboola.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "taboola",
+    "linkedin_url": "https://www.linkedin.com/company/taboola",
+    "career_page_url": "https://www.taboola.com/careers"
+  },
+  {
+    "name": "SentinelOne",
+    "city": "Tel Aviv",
+    "website": "https://www.sentinelone.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "sentinelone",
+    "linkedin_url": "https://www.linkedin.com/company/sentinelone",
+    "career_page_url": "https://www.sentinelone.com/careers/"
+  },
+  {
+    "name": "Wiz",
+    "city": "Tel Aviv",
+    "website": "https://www.wiz.io",
+    "ats_type": "greenhouse",
+    "ats_slug": "wiz",
+    "linkedin_url": "https://www.linkedin.com/company/wiz-security",
+    "career_page_url": "https://www.wiz.io/careers"
+  },
+  {
+    "name": "Global-e",
+    "city": "Petah Tikva",
+    "website": "https://www.global-e.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "globale",
+    "linkedin_url": "https://www.linkedin.com/company/global-e",
+    "career_page_url": "https://www.global-e.com/careers/"
+  },
+  {
+    "name": "Palo Alto Networks Israel",
+    "city": "Tel Aviv",
+    "website": "https://www.paloaltonetworks.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/palo-alto-networks",
+    "career_page_url": "https://paloaltonetworks.wd1.myworkdayjobs.com/Palo_Alto_Networks_External_Careers"
+  },
+  {
+    "name": "NICE",
+    "city": "Ra'anana",
+    "website": "https://www.nice.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/nice-systems",
+    "career_page_url": "https://nice.wd1.myworkdayjobs.com/NICE"
+  },
+  {
+    "name": "DriveNets",
+    "city": "Ra'anana",
+    "website": "https://drivenets.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "drivenets",
+    "linkedin_url": "https://www.linkedin.com/company/drivenets",
+    "career_page_url": "https://drivenets.com/careers/"
+  },
+  {
+    "name": "Navan",
+    "city": "Tel Aviv",
+    "website": "https://navan.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "navan",
+    "linkedin_url": "https://www.linkedin.com/company/navan",
+    "career_page_url": "https://navan.com/careers"
+  },
+  {
+    "name": "Verbit",
+    "city": "Tel Aviv",
+    "website": "https://verbit.ai",
+    "ats_type": "greenhouse",
+    "ats_slug": "verbit",
+    "linkedin_url": "https://www.linkedin.com/company/verbit-ai",
+    "career_page_url": "https://verbit.ai/careers/"
+  },
+  {
+    "name": "Orca Security",
+    "city": "Hod HaSharon",
+    "website": "https://orca.security",
+    "ats_type": "greenhouse",
+    "ats_slug": "orcasecurity",
+    "linkedin_url": "https://www.linkedin.com/company/orca-security",
+    "career_page_url": "https://orca.security/careers/"
+  },
+  {
+    "name": "Check Point",
+    "city": "Tel Aviv",
+    "website": "https://www.checkpoint.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/check-point-software-technologies",
+    "career_page_url": "https://careers.checkpoint.com/"
+  },
+  {
+    "name": "Cato Networks",
+    "city": "Tel Aviv",
+    "website": "https://www.catonetworks.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "catonetworks",
+    "linkedin_url": "https://www.linkedin.com/company/cato-networks",
+    "career_page_url": "https://www.catonetworks.com/careers/"
+  },
+  {
+    "name": "BigPanda",
+    "city": "Tel Aviv",
+    "website": "https://www.bigpanda.io",
+    "ats_type": "greenhouse",
+    "ats_slug": "bigpanda",
+    "linkedin_url": "https://www.linkedin.com/company/bigpanda",
+    "career_page_url": "https://www.bigpanda.io/careers/"
+  },
+  {
+    "name": "Kaltura",
+    "city": "Ramat Gan",
+    "website": "https://corp.kaltura.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "kaltura",
+    "linkedin_url": "https://www.linkedin.com/company/kaltura",
+    "career_page_url": "https://corp.kaltura.com/careers/"
+  },
+  {
+    "name": "Riskified",
+    "city": "Tel Aviv",
+    "website": "https://www.riskified.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "riskified",
+    "linkedin_url": "https://www.linkedin.com/company/riskified",
+    "career_page_url": "https://www.riskified.com/careers/"
+  },
+  {
+    "name": "Earnix",
+    "city": "Givatayim",
+    "website": "https://earnix.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "earnix",
+    "linkedin_url": "https://www.linkedin.com/company/earnix",
+    "career_page_url": "https://earnix.com/careers/"
+  },
+  {
+    "name": "Zerto (HPE)",
+    "city": "Herzliya",
+    "website": "https://www.zerto.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/zerto",
+    "career_page_url": "https://hpe.wd5.myworkdayjobs.com/Jobs_at_HPE"
+  },
+  {
+    "name": "CyberArk",
+    "city": "Petah Tikva",
+    "website": "https://www.cyberark.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/cyberark",
+    "career_page_url": "https://www.cyberark.com/careers/"
+  },
+  {
+    "name": "Similarweb",
+    "city": "Tel Aviv",
+    "website": "https://www.similarweb.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "similarweb",
+    "linkedin_url": "https://www.linkedin.com/company/similarweb",
+    "career_page_url": "https://www.similarweb.com/corp/careers/"
+  },
+  {
+    "name": "ZoomInfo Israel",
+    "city": "Ra'anana",
+    "website": "https://www.zoominfo.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "zoominfo",
+    "linkedin_url": "https://www.linkedin.com/company/zoominfo",
+    "career_page_url": "https://www.zoominfo.com/about/careers"
+  },
+  {
+    "name": "SAP Labs Israel",
+    "city": "Ra'anana",
+    "website": "https://www.sap.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/sap",
+    "career_page_url": "https://jobs.sap.com/search/?locationsearch=Israel"
+  },
+  {
+    "name": "Red Hat Israel",
+    "city": "Ra'anana",
+    "website": "https://www.redhat.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/red-hat",
+    "career_page_url": "https://careers.redhat.com/be/en/search-results?keywords=Israel"
+  },
+  {
+    "name": "Incredibuild",
+    "city": "Ra'anana",
+    "website": "https://www.incredibuild.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "incredibuild",
+    "linkedin_url": "https://www.linkedin.com/company/incredibuild",
+    "career_page_url": "https://www.incredibuild.com/careers"
+  },
+  {
+    "name": "Bluevine",
+    "city": "Ra'anana",
+    "website": "https://www.bluevine.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "bluevine",
+    "linkedin_url": "https://www.linkedin.com/company/bluevine",
+    "career_page_url": "https://www.bluevine.com/careers/"
+  },
+  {
+    "name": "Qodo",
+    "city": "Tel Aviv",
+    "website": "https://www.qodo.ai",
+    "ats_type": "greenhouse",
+    "ats_slug": "qodo",
+    "linkedin_url": "https://www.linkedin.com/company/qodo-ai",
+    "career_page_url": "https://www.qodo.ai/careers/"
+  },
+  {
+    "name": "Upstream Security",
+    "city": "Herzliya",
+    "website": "https://upstream.auto",
+    "ats_type": "greenhouse",
+    "ats_slug": "upstreamsecurity",
+    "linkedin_url": "https://www.linkedin.com/company/upstream-security",
+    "career_page_url": "https://upstream.auto/careers/"
+  },
+  {
+    "name": "Own (OwnBackup)",
+    "city": "Herzliya",
+    "website": "https://www.owndata.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "ownbackup",
+    "linkedin_url": "https://www.linkedin.com/company/owndata",
+    "career_page_url": "https://www.owndata.com/careers"
+  },
+  {
+    "name": "Overwolf",
+    "city": "Ramat Gan",
+    "website": "https://www.overwolf.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "overwolf",
+    "linkedin_url": "https://www.linkedin.com/company/overwolf",
+    "career_page_url": "https://www.overwolf.com/careers/"
+  },
+  {
+    "name": "Claroty",
+    "city": "Tel Aviv",
+    "website": "https://claroty.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "claroty",
+    "linkedin_url": "https://www.linkedin.com/company/claroty",
+    "career_page_url": "https://claroty.com/open-positions"
+  },
+  {
+    "name": "Unity Israel (IronSource)",
+    "city": "Tel Aviv",
+    "website": "https://unity.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/unity-technologies",
+    "career_page_url": "https://careers.unity.com/"
+  },
+  {
+    "name": "Salesforce Israel (ClickSoftware)",
+    "city": "Petah Tikva",
+    "website": "https://www.salesforce.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/salesforce",
+    "career_page_url": "https://careers.salesforce.com/en/"
+  },
+  {
+    "name": "Rapyd",
+    "city": "Tel Aviv",
+    "website": "https://www.rapyd.net",
+    "ats_type": "greenhouse",
+    "ats_slug": "rapyd",
+    "linkedin_url": "https://www.linkedin.com/company/rapyd",
+    "career_page_url": "https://www.rapyd.net/company/careers/"
+  },
+  {
+    "name": "Melio",
+    "city": "Tel Aviv",
+    "website": "https://www.meliopayments.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "melio",
+    "linkedin_url": "https://www.linkedin.com/company/melio",
+    "career_page_url": "https://www.meliopayments.com/careers"
+  },
+  {
+    "name": "Yotpo",
+    "city": "Tel Aviv",
+    "website": "https://www.yotpo.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "yotpo",
+    "linkedin_url": "https://www.linkedin.com/company/yotpo",
+    "career_page_url": "https://www.yotpo.com/yotpo-careers/"
+  },
+  {
+    "name": "Varonis",
+    "city": "Herzliya",
+    "website": "https://www.varonis.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/varonis",
+    "career_page_url": "https://www.varonis.com/company/careers"
+  },
+  {
+    "name": "Aqua Security",
+    "city": "Ramat Gan",
+    "website": "https://www.aquasec.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "aquasecurity",
+    "linkedin_url": "https://www.linkedin.com/company/aqua-security",
+    "career_page_url": "https://www.aquasec.com/about/careers/"
+  },
+  {
+    "name": "Pentera",
+    "city": "Petah Tikva",
+    "website": "https://pentera.io",
+    "ats_type": "greenhouse",
+    "ats_slug": "pentera",
+    "linkedin_url": "https://www.linkedin.com/company/pentera",
+    "career_page_url": "https://pentera.io/careers/"
+  },
+  {
+    "name": "Transmit Security",
+    "city": "Tel Aviv",
+    "website": "https://www.transmitsecurity.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "transmitsecurity",
+    "linkedin_url": "https://www.linkedin.com/company/transmit-security",
+    "career_page_url": "https://www.transmitsecurity.com/careers"
+  },
+  {
+    "name": "Akamai Israel",
+    "city": "Tel Aviv",
+    "website": "https://www.akamai.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/akamai-technologies",
+    "career_page_url": "https://careers.akamai.com/"
+  },
+  {
+    "name": "Nvidia Israel",
+    "city": "Tel Aviv",
+    "website": "https://www.nvidia.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/nvidia",
+    "career_page_url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite"
+  },
+  {
+    "name": "Apple Israel",
+    "city": "Herzliya",
+    "website": "https://www.apple.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/apple",
+    "career_page_url": "https://jobs.apple.com/en-il/search?location=israel-ISR"
+  },
+  {
+    "name": "Sisense",
+    "city": "Ramat Gan",
+    "website": "https://www.sisense.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "sisense",
+    "linkedin_url": "https://www.linkedin.com/company/sisense",
+    "career_page_url": "https://www.sisense.com/company/careers/"
+  },
+  {
+    "name": "Broadcom Israel",
+    "city": "Ra'anana",
+    "website": "https://www.broadcom.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/broadcom",
+    "career_page_url": "https://broadcom.wd1.myworkdayjobs.com/External_Career"
+  },
+  {
+    "name": "Google Israel (Waze)",
+    "city": "Tel Aviv",
+    "website": "https://about.google",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/google",
+    "career_page_url": "https://www.google.com/about/careers/applications/jobs/results/?location=Israel"
+  },
+  {
+    "name": "Tabnine",
+    "city": "Tel Aviv",
+    "website": "https://www.tabnine.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "tabnine",
+    "linkedin_url": "https://www.linkedin.com/company/tabnine",
+    "career_page_url": "https://www.tabnine.com/careers/"
+  },
+  {
+    "name": "Coralogix",
+    "city": "Tel Aviv",
+    "website": "https://coralogix.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "coralogix",
+    "linkedin_url": "https://www.linkedin.com/company/coralogix",
+    "career_page_url": "https://coralogix.com/careers/"
+  },
+  {
+    "name": "Frontegg",
+    "city": "Tel Aviv",
+    "website": "https://frontegg.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "frontegg",
+    "linkedin_url": "https://www.linkedin.com/company/frontegg",
+    "career_page_url": "https://frontegg.com/careers/"
+  },
+  {
+    "name": "Lusha",
+    "city": "Tel Aviv",
+    "website": "https://www.lusha.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "lusha",
+    "linkedin_url": "https://www.linkedin.com/company/lusha",
+    "career_page_url": "https://www.lusha.com/careers/"
+  },
+  {
+    "name": "Mend.io",
+    "city": "Tel Aviv",
+    "website": "https://www.mend.io",
+    "ats_type": "greenhouse",
+    "ats_slug": "mendio",
+    "linkedin_url": "https://www.linkedin.com/company/mend-io",
+    "career_page_url": "https://www.mend.io/careers/"
+  },
+  {
+    "name": "Cellebrite",
+    "city": "Petah Tikva",
+    "website": "https://cellebrite.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "cellebrite",
+    "linkedin_url": "https://www.linkedin.com/company/cellebrite",
+    "career_page_url": "https://cellebrite.com/en/careers/"
+  },
+  {
+    "name": "AudioCodes",
+    "city": "Ra'anana",
+    "website": "https://www.audiocodes.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/audiocodes",
+    "career_page_url": "https://www.audiocodes.com/careers"
+  },
+  {
+    "name": "Sealights",
+    "city": "Ra'anana",
+    "website": "https://sealights.io",
+    "ats_type": "greenhouse",
+    "ats_slug": "sealights",
+    "linkedin_url": "https://www.linkedin.com/company/sealights",
+    "career_page_url": "https://sealights.io/careers/"
+  },
+  {
+    "name": "LiveU",
+    "city": "Ra'anana",
+    "website": "https://www.liveu.tv",
+    "ats_type": "greenhouse",
+    "ats_slug": "liveu",
+    "linkedin_url": "https://www.linkedin.com/company/liveu",
+    "career_page_url": "https://www.liveu.tv/company/careers/"
+  },
+  {
+    "name": "NetApp Israel",
+    "city": "Ra'anana",
+    "website": "https://www.netapp.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/netapp",
+    "career_page_url": "https://careers.netapp.com/"
+  },
+  {
+    "name": "HP Israel R&D",
+    "city": "Ra'anana",
+    "website": "https://www.hp.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/hp",
+    "career_page_url": "https://jobs.hp.com/en-us/search-jobs/Israel"
+  },
+  {
+    "name": "Cognyte",
+    "city": "Ra'anana",
+    "website": "https://www.cognyte.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "cognyte",
+    "linkedin_url": "https://www.linkedin.com/company/cognyte",
+    "career_page_url": "https://www.cognyte.com/careers/"
+  },
+  {
+    "name": "AlgoSec",
+    "city": "Kfar Saba",
+    "website": "https://www.algosec.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "algosec",
+    "linkedin_url": "https://www.linkedin.com/company/algosec",
+    "career_page_url": "https://www.algosec.com/careers/"
+  },
+  {
+    "name": "Magic Software",
+    "city": "Kfar Saba",
+    "website": "https://www.magicsoftware.com",
+    "ats_type": "custom",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/magic-software-enterprises",
+    "career_page_url": "https://www.magicsoftware.com/about-us/careers/"
+  },
+  {
+    "name": "Commvault Israel",
+    "city": "Kfar Saba",
+    "website": "https://www.commvault.com",
+    "ats_type": "workday",
+    "ats_slug": null,
+    "linkedin_url": "https://www.linkedin.com/company/commvault",
+    "career_page_url": "https://careers.commvault.com/"
+  },
+  {
+    "name": "Skybox Security",
+    "city": "Netanya",
+    "website": "https://www.skyboxsecurity.com",
+    "ats_type": "greenhouse",
+    "ats_slug": "skyboxsecurity",
+    "linkedin_url": "https://www.linkedin.com/company/skybox-security",
+    "career_page_url": "https://www.skyboxsecurity.com/company/careers/"
+  }
+]

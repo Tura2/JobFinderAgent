@@ -125,6 +125,7 @@ async def run_scan_for_company(company: Company, session: Session) -> list[dict]
         score = match_result["score"]
         reasoning = match_result["reasoning"]
         cv_name = match_result["cv_variant"]
+        score_breakdown = match_result.get("score_breakdown")
 
         selected = select_cv_variant(cv_name, active_variants)
         cv_variant_id = selected[0].id if selected else None
@@ -137,6 +138,7 @@ async def run_scan_for_company(company: Company, session: Session) -> list[dict]
             reasoning=reasoning,
             cv_variant_id=cv_variant_id,
             status=status,
+            score_breakdown=score_breakdown,
         )
         session.add(match)
         session.commit()

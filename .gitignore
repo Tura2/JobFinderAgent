@@ -13,3 +13,6 @@ frontend/.env.local
 .superpowers/
 .claude/
 frontend/public/*.pdf
+checkcompanies.md
+backend/venv/
+*.log

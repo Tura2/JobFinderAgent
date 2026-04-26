@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JobFinder — Login</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #030712;
+      color: #f9fafb;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 20px;
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .subtitle { color: #4b5563; font-size: 13px; margin-bottom: 28px; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    input[type="password"] {
+      width: 100%;
+      height: 48px;
+      background: #0a0f1a;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-size: 16px;
+      color: #f9fafb;
+      outline: none;
+      font-family: inherit;
+      margin-bottom: 16px;
+      transition: border-color 0.15s;
+    }
+    input[type="password"]:focus { border-color: #6366f1; }
+    .error {
+      background: #1f0a0a;
+      border: 1px solid #7f1d1d;
+      border-radius: 10px;
+      color: #fca5a5;
+      font-size: 13px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .error.visible { display: block; }
+    button {
+      width: 100%;
+      height: 50px;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.15s;
+    }
+    button:active { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">JobFinder</div>
+    <div class="subtitle">Autonomous job hunting pipeline</div>
+    <div class="error" id="err">Incorrect password — try again.</div>
+    <form method="POST" action="/auth/login">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password"
+             autocomplete="current-password" autofocus />
+      <button type="submit">Unlock</button>
+    </form>
+  </div>
+  <script>
+    if (new URLSearchParams(location.search).get('error')) {
+      document.getElementById('err').classList.add('visible');
+    }
+  </script>
+</body>
+</html>

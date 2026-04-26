@@ -1,12 +1,10 @@
 import os
+os.environ.setdefault("SESSION_SECRET_KEY", "test-secret-key-for-testing-32chars!")
+os.environ.setdefault("PWA_ACCESS_TOKEN", "changeme")
 
 import pytest
 from sqlmodel import SQLModel, Session, create_engine
 from fastapi.testclient import TestClient
-
-# Ensure required env vars are set before any app module is imported at
-# collection time (Settings() is instantiated at module level in config.py).
-os.environ.setdefault("SESSION_SECRET_KEY", "test-secret")
 
 import app.models  # noqa: F401 — register all models with metadata
 
@@ -28,19 +26,19 @@ def db_session(engine):
 def test_client(engine):
     from app.main import app
     from app.database import get_session
-    from app.auth import verify_token
+    from app.middleware.session import make_session_cookie
+    from app.config import settings
 
     def override_session():
         with Session(engine) as session:
             yield session
 
-    async def override_auth():
-        return "test-token"
-
     app.dependency_overrides[get_session] = override_session
-    app.dependency_overrides[verify_token] = override_auth
 
-    with TestClient(app) as c:
+    cookie_val = make_session_cookie(settings.session_secret_key, settings.session_max_age_days)
+
+    with TestClient(app, follow_redirects=False) as c:
+        c.cookies.set("session", cookie_val)
         yield c
 
     app.dependency_overrides.clear()

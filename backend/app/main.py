@@ -41,14 +41,15 @@ app.include_router(tracker.router, tags=["tracker"])
 app.include_router(cv_variants.router, prefix="/cv-variants", tags=["cv-variants"])
 app.include_router(scanner.router, tags=["scanner"])
 
-pwa_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
-if pwa_dist.exists():
-    app.mount("/", StaticFiles(directory=str(pwa_dist), html=True), name="pwa")
-
 
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "service": "jobfinder-agent"}
+
+
+pwa_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
+if pwa_dist.exists():
+    app.mount("/", StaticFiles(directory=str(pwa_dist), html=True), name="pwa")
 
 
 if __name__ == "__main__":

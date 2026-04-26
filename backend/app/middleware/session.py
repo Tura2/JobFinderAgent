@@ -6,6 +6,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
+# /config is public so the frontend can read applicant_linkedin_url before login
 PUBLIC_PATHS = {"/login", "/auth/login", "/auth/logout", "/health", "/config"}
 
 

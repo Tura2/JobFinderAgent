@@ -1,4 +1,5 @@
 import os
+# Must be set before any app module import — Settings() is instantiated at module level.
 os.environ.setdefault("SESSION_SECRET_KEY", "test-secret-key-for-testing-32chars!")
 os.environ.setdefault("PWA_ACCESS_TOKEN", "changeme")
 

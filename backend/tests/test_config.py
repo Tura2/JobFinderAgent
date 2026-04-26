@@ -6,10 +6,12 @@ def test_settings_loads_defaults():
     from app.config import Settings
 
     s = Settings(
-        OPENROUTER_API_KEY="test-key",
-        TELEGRAM_BOT_TOKEN="test-bot",
-        TELEGRAM_CHAT_ID="12345",
-        PWA_ACCESS_TOKEN="test-token",
+        _env_file=None,
+        openrouter_api_key="test-key",
+        telegram_bot_token="test-bot",
+        telegram_chat_id="12345",
+        pwa_access_token="test-token",
+        session_secret_key="test-secret",
     )
     assert s.openrouter_model == "anthropic/claude-opus-4.5"
     assert s.match_threshold == 65
@@ -28,6 +30,7 @@ def test_settings_overrides_from_env(monkeypatch):
     monkeypatch.setenv("PWA_ACCESS_TOKEN", "tok123")
     monkeypatch.setenv("PWA_BASE_URL", "http://myvm:8000")
     monkeypatch.setenv("DATABASE_URL", "sqlite:///./test.db")
+    monkeypatch.setenv("SESSION_SECRET_KEY", "test-secret")
 
     from app.config import Settings
 
@@ -48,9 +51,11 @@ def test_match_threshold_bounds():
 
     with pytest.raises(Exception):
         Settings(
-            OPENROUTER_API_KEY="k",
-            TELEGRAM_BOT_TOKEN="t",
-            TELEGRAM_CHAT_ID="1",
-            PWA_ACCESS_TOKEN="t",
-            MATCH_THRESHOLD=150,
+            _env_file=None,
+            openrouter_api_key="k",
+            telegram_bot_token="t",
+            telegram_chat_id="1",
+            pwa_access_token="t",
+            session_secret_key="test-secret",
+            match_threshold=150,
         )

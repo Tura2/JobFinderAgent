@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     pwa_access_token: str
     pwa_base_url: str = "http://localhost:8000"
 
+    # Session auth
+    session_secret_key: str
+    session_max_age_days: int = 30
+
     # Database
     database_url: str = "sqlite:///./jobfinder.db"
 

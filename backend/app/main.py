@@ -6,7 +6,9 @@ from pathlib import Path
 
 from app.config import settings
 from app.database import create_db_and_tables
+from app.middleware.session import SessionMiddleware
 from app.routers import matches, companies, tracker, cv_variants, scanner
+from app.routers import auth
 
 
 @asynccontextmanager
@@ -27,14 +29,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(SessionMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=[settings.pwa_base_url],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.include_router(auth.router, tags=["auth"])
 app.include_router(matches.router, prefix="/matches", tags=["matches"])
 app.include_router(companies.router, prefix="/companies", tags=["companies"])
 app.include_router(tracker.router, tags=["tracker"])

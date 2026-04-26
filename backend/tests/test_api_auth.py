@@ -1,5 +1,6 @@
 import os
 os.environ.setdefault("SESSION_SECRET_KEY", "test-secret-key-for-testing-32chars!")
+os.environ.setdefault("PWA_ACCESS_TOKEN", "changeme")
 
 import pytest
 from fastapi.testclient import TestClient

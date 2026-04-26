@@ -63,14 +63,27 @@ async def score_job(
         content = data["choices"][0]["message"]["content"]
         parsed = json.loads(content)
 
-        score = int(parsed["score"])
-        reasoning = str(parsed["reasoning"])
-        cv_variant = str(parsed["cv_variant"])
+        subs = parsed["scores"]
+        tech     = max(0, min(30, int(subs["tech_stack"])))
+        role     = max(0, min(25, int(subs["role_type"])))
+        domain   = max(0, min(20, int(subs["domain"])))
+        seniority = max(0, min(15, int(subs["seniority"])))
+        location = max(0, min(10, int(subs["location"])))
+        score = tech + role + domain + seniority + location
+
+        breakdown = {
+            "tech_stack": tech,
+            "role_type": role,
+            "domain": domain,
+            "seniority": seniority,
+            "location": location,
+        }
 
         return {
-            "score": max(0, min(100, score)),
-            "reasoning": reasoning,
-            "cv_variant": cv_variant,
+            "score": score,
+            "reasoning": str(parsed["reasoning"]),
+            "cv_variant": str(parsed["cv_variant"]),
+            "score_breakdown": json.dumps(breakdown),
         }
 
     except (json.JSONDecodeError, KeyError, ValueError) as e:

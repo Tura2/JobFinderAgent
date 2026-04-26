@@ -81,6 +81,14 @@ class MatchListItem(BaseModel):
     company_name: str
 
 
+class ScoreBreakdown(BaseModel):
+    tech_stack: int
+    role_type: int
+    domain: int
+    seniority: int
+    location: int
+
+
 class MatchDetail(BaseModel):
     id: int
     score: int
@@ -88,6 +96,7 @@ class MatchDetail(BaseModel):
     status: str
     matched_at: datetime
     reviewed_at: Optional[datetime] = None
+    score_breakdown: Optional[ScoreBreakdown] = None
     job: JobOut
     company: CompanyOut
     cv_variant: Optional[CVVariantOut] = None
@@ -177,9 +186,19 @@ async def get_match_detail(match_id: int, session: Session = Depends(get_session
                     for v in selected
                 ]
 
+    breakdown = None
+    if match.score_breakdown:
+        import json as _json
+        try:
+            bd = _json.loads(match.score_breakdown)
+            breakdown = ScoreBreakdown(**bd)
+        except Exception:
+            pass
+
     return MatchDetail(
         id=match.id, score=match.score, reasoning=match.reasoning,
         status=match.status, matched_at=match.matched_at, reviewed_at=match.reviewed_at,
+        score_breakdown=breakdown,
         job=JobOut(
             id=job.id, title=job.title, url=job.url,
             description_raw=job.description_raw, location=job.location, remote=job.remote,

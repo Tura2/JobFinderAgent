@@ -128,6 +128,8 @@ async def test_orphaned_jobs_are_rescored(db):
     db.commit()
     db.refresh(company)
 
+    cv = _seed_cv(db)
+
     orphan = Job(
         company_id=company.id,
         title="Backend Engineer",

@@ -7,7 +7,7 @@ class Match(SQLModel, table=True):
     __tablename__ = "matches"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    job_id: int = Field(foreign_key="jobs.id")
+    job_id: int = Field(foreign_key="jobs.id", unique=True)
     score: int
     reasoning: str
     cv_variant_id: Optional[int] = Field(default=None, foreign_key="cv_variants.id")

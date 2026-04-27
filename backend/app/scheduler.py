@@ -18,6 +18,7 @@ from app.ingestion.normalizer import normalize_and_deduplicate
 from app.pipeline.matchmaker import score_job
 from app.pipeline.cv_selector import select_cv_variant
 from app.notifications.telegram import send_match_notification
+from app.routers.matches import build_ats_apply_url
 
 logger = logging.getLogger(__name__)
 
@@ -165,6 +166,7 @@ async def run_scan_for_company(company: Company, session: Session) -> list[dict]
         session.refresh(match)
 
         if status == "new":
+            ats_apply_url = build_ats_apply_url(job.url, company.ats_type)
             await send_match_notification(
                 match_id=match.id,
                 company_name=company.name,
@@ -173,6 +175,7 @@ async def run_scan_for_company(company: Company, session: Session) -> list[dict]
                 reasoning=reasoning,
                 pwa_base_url=settings.pwa_base_url,
                 db=session,
+                ats_apply_url=ats_apply_url if ats_apply_url != job.url else "",
             )
 
         results.append({

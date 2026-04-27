@@ -14,14 +14,18 @@ def format_match_message(
     reasoning: str,
     match_id: int,
     pwa_base_url: str,
+    ats_apply_url: str = "",
 ) -> str:
-    link = f"{pwa_base_url}/matches/{match_id}"
-    return (
+    review_link = f"{pwa_base_url}/matches/{match_id}"
+    msg = (
         f"\U0001f3af Match at {company_name} \u00b7 {score}%\n"
         f"{job_title}\n\n"
         f"{reasoning}\n\n"
-        f"\U0001f517 {link}"
+        f"\U0001f517 Review: {review_link}"
     )
+    if ats_apply_url:
+        msg += f"\n\U0001f4cb Apply (pre-filled): {ats_apply_url}"
+    return msg
 
 
 async def send_match_notification(
@@ -32,6 +36,7 @@ async def send_match_notification(
     reasoning: str,
     pwa_base_url: str,
     db: Session,
+    ats_apply_url: str = "",
 ) -> None:
     from app.models.match import Match
 
@@ -49,6 +54,7 @@ async def send_match_notification(
             reasoning=reasoning,
             match_id=match_id,
             pwa_base_url=pwa_base_url,
+            ats_apply_url=ats_apply_url,
         )
         sent = await bot.send_message(
             chat_id=settings.telegram_chat_id,

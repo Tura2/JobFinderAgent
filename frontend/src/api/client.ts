@@ -10,6 +10,11 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
     },
   });
 
+  if (resp.status === 401) {
+    window.location.href = "/login";
+    throw new Error("Not authenticated");
+  }
+
   if (!resp.ok) {
     throw new Error(`API error ${resp.status}: ${await resp.text()}`);
   }
@@ -26,7 +31,8 @@ export const api = {
       `/matches/${id}/applied`,
       { method: "POST", body: JSON.stringify({ ats_url: atsUrl, chosen_cv_variant_id: chosenCvVariantId }) }
     ),
-  getNearMisses: () => apiFetch<import("../types").MatchListItem[]>("/matches/near-misses"),
+  getNearMisses: (minScore = 30) =>
+    apiFetch<import("../types").MatchListItem[]>(`/matches/near-misses?min_score=${minScore}`),
 
   getTracker: () => apiFetch<import("../types").Application[]>("/tracker"),
   updateApplication: (id: number, data: { outcome_status?: string; notes?: string }) =>

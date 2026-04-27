@@ -4,6 +4,7 @@ os.environ.setdefault("SESSION_SECRET_KEY", "test-secret-key-for-testing-32chars
 os.environ.setdefault("PWA_ACCESS_TOKEN", "changeme")
 
 import pytest
+from sqlalchemy.pool import StaticPool
 from sqlmodel import SQLModel, Session, create_engine
 from fastapi.testclient import TestClient
 
@@ -12,7 +13,12 @@ import app.models  # noqa: F401 — register all models with metadata
 
 @pytest.fixture(name="engine")
 def test_engine():
-    engine = create_engine("sqlite://", echo=False)
+    engine = create_engine(
+        "sqlite://",
+        echo=False,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     SQLModel.metadata.create_all(engine)
     yield engine
 

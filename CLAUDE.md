@@ -76,7 +76,7 @@ APScheduler (every SCAN_INTERVAL_HOURS)
 
 ### Key design decisions
 
-- **Single-user, token-auth only.** Every API route checks `Authorization: Bearer <PWA_ACCESS_TOKEN>`. No login UI.
+- **Session cookie auth.** Login page at `/login` accepts `PWA_ACCESS_TOKEN` as the password and issues an HMAC-signed `session` cookie (`expiry:sha256(secret, expiry)`). All API routes are protected by `SessionMiddleware` except the public paths: `/login`, `/auth/login`, `/auth/logout`, `/health`, `/config`.
 - **No auto-apply.** The pipeline stops at Telegram notification; the user applies manually.
 - **CV variants are data, not code.** Loaded from `cv_variants` table; variant logic is keyword matching against `focus_tags` JSON array.
 - **content_hash dedup.** Jobs are never re-processed once seen; hash is on `company_id + title + url`.
@@ -108,19 +108,26 @@ Copy `backend/.env.example` to `backend/.env`. Key vars:
 | `MATCH_THRESHOLD` | Score cutoff (0–100, default 65) |
 | `SCAN_INTERVAL_HOURS` | Scheduler frequency |
 | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | Notifications |
-| `PWA_ACCESS_TOKEN` | Static bearer auth for all API routes |
+| `PWA_ACCESS_TOKEN` | Login password for the `/login` form |
+| `SESSION_SECRET_KEY` | **Required.** HMAC secret for signing session cookies |
+| `SESSION_MAX_AGE_DAYS` | Cookie lifetime in days (default 30) |
+| `PWA_BASE_URL` | Comma-separated allowed CORS origins (default `http://localhost:8000`) |
 | `DATABASE_URL` | SQLite path (`sqlite:///./jobfinder.db`) |
 | `APPLICANT_*` | Name/email/LinkedIn/portfolio for ATS pre-fill links |
 
 Frontend env: copy `frontend/.env.example` to `frontend/.env.local` (gitignored):
-```
+
+```env
 VITE_API_URL=http://<vm-ip>:8000
-VITE_ACCESS_TOKEN=<same as PWA_ACCESS_TOKEN>
 ```
 
 ### API surface (FastAPI)
 
-```
+```text
+GET            /login                    Login page (HTML)
+POST           /auth/login               Submit password → sets session cookie
+POST           /auth/logout              Clears session cookie
+GET            /config                   Public: returns applicant linkedin_url
 GET            /matches                  Pending matches (status=new), score desc
 GET            /matches/near-misses      Below-threshold matches (status=low_match)
 GET            /matches/{id}             Detail + ambiguous_variants if CV tie
@@ -139,6 +146,12 @@ POST           /trigger-scan             Manual scan (background task)
 GET            /scan-status              Last scan time, job count, is_running
 GET            /health                   Liveness check
 ```
+
+### Testing notes
+
+`conftest.py` sets `SESSION_SECRET_KEY` and `PWA_ACCESS_TOKEN` via `os.environ.setdefault` **before any app import** because `Settings()` is instantiated at module level. Any new required env vars must be added there too, or tests will fail with a `ValidationError` at import time.
+
+The `client` fixture injects a valid session cookie automatically — no need to handle auth in individual tests.
 
 ### Git history (phase-by-phase)
 

@@ -12,6 +12,10 @@ export default defineConfig({
       "/cv-variants": "http://localhost:8000",
       "/trigger-scan": "http://localhost:8000",
       "/scan-status": "http://localhost:8000",
+      "/auth": "http://localhost:8000",
+      "/login": "http://localhost:8000",
+      "/config": "http://localhost:8000",
+      "/health": "http://localhost:8000",
     },
   },
   test: {

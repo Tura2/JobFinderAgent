@@ -4,7 +4,7 @@ import time
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import RedirectResponse
+from starlette.responses import JSONResponse, RedirectResponse
 
 # /config is public so the frontend can read applicant_linkedin_url before login
 PUBLIC_PATHS = {"/login", "/auth/login", "/auth/logout", "/health", "/config"}
@@ -38,4 +38,7 @@ class SessionMiddleware(BaseHTTPMiddleware):
         cookie = request.cookies.get("session", "")
         if verify_session_cookie(settings.session_secret_key, cookie):
             return await call_next(request)
-        return RedirectResponse("/login", status_code=302)
+        accept = request.headers.get("accept", "")
+        if "text/html" in accept:
+            return RedirectResponse("/login", status_code=302)
+        return JSONResponse({"detail": "Not authenticated"}, status_code=401)

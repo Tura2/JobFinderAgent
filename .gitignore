@@ -16,3 +16,5 @@ frontend/public/*.pdf
 checkcompanies.md
 backend/venv/
 *.log
+d.md
+docs/logs/

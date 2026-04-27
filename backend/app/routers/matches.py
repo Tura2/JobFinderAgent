@@ -226,6 +226,22 @@ async def skip_match(match_id: int, session: Session = Depends(get_session)):
     return {"id": match.id, "status": match.status}
 
 
+@router.post("/{match_id}/promote")
+async def promote_near_miss(match_id: int, session: Session = Depends(get_session)):
+    match = session.get(Match, match_id)
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+    if match.status != "low_match":
+        raise HTTPException(status_code=400, detail="Only low_match entries can be promoted")
+
+    match.status = "new"
+    match.reviewed_at = datetime.now(timezone.utc)
+    session.add(match)
+    session.commit()
+    session.refresh(match)
+    return {"id": match.id, "status": match.status}
+
+
 @router.post("/{match_id}/applied")
 async def apply_match(
     match_id: int,

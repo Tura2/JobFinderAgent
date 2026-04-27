@@ -33,6 +33,8 @@ export const api = {
     ),
   getNearMisses: (minScore = 30) =>
     apiFetch<import("../types").MatchListItem[]>(`/matches/near-misses?min_score=${minScore}`),
+  promoteMatch: (id: number) =>
+    apiFetch<{ id: number; status: string }>(`/matches/${id}/promote`, { method: "POST" }),
 
   getTracker: () => apiFetch<import("../types").Application[]>("/tracker"),
   updateApplication: (id: number, data: { outcome_status?: string; notes?: string }) =>

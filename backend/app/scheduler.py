@@ -10,6 +10,7 @@ from sqlmodel import Session, select
 from app.config import settings
 from app.models.company import Company
 from app.models.cv_variant import CVVariant
+from app.models.job import Job
 from app.models.match import Match
 from app.ingestion.ats_fetcher import fetch_greenhouse_jobs, fetch_lever_jobs
 from app.ingestion.scrapling_fetcher import fetch_career_page, fetch_linkedin_jobs
@@ -86,18 +87,33 @@ async def _fetch_jobs_for_company(company: Company) -> list[dict]:
 async def run_scan_for_company(company: Company, session: Session) -> list[dict]:
     raw_jobs = await _fetch_jobs_for_company(company)
     if not raw_jobs:
-        return []
+        raw_jobs = []
 
     new_jobs = normalize_and_deduplicate(raw_jobs, company.id, session)
-    if not new_jobs:
-        return []
 
-    filtered_jobs = [j for j in new_jobs if not _is_excluded_title(j.title)]
-    skipped = len(new_jobs) - len(filtered_jobs)
+    # Also pick up jobs that exist in DB but have no Match (matchmaker failed previously)
+    scored_job_ids: set[int] = {
+        row for row in session.exec(
+            select(Match.job_id)
+            .join(Job, Match.job_id == Job.id)
+            .where(Job.company_id == company.id)
+        ).all()
+    }
+    all_company_jobs = list(
+        session.exec(select(Job).where(Job.company_id == company.id)).all()
+    )
+    new_job_ids = {j.id for j in new_jobs}
+    unscored_jobs = [
+        j for j in all_company_jobs
+        if j.id not in scored_job_ids and j.id not in new_job_ids
+    ]
+
+    jobs_to_score = new_jobs + unscored_jobs
+    filtered_jobs = [j for j in jobs_to_score if not _is_excluded_title(j.title)]
+    skipped = len(jobs_to_score) - len(filtered_jobs)
     if skipped:
         logger.info(f"Pre-filter skipped {skipped} irrelevant titles for {company.name}")
-    new_jobs = filtered_jobs
-    if not new_jobs:
+    if not filtered_jobs:
         return []
 
     user_profile = _load_user_profile()
@@ -108,7 +124,7 @@ async def run_scan_for_company(company: Company, session: Session) -> list[dict]
 
     results = []
 
-    for job in new_jobs:
+    for job in filtered_jobs:
         match_result = await score_job(
             job_title=job.title,
             company_name=company.name,

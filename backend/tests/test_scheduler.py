@@ -111,3 +111,43 @@ async def test_run_scan_dedup_skips_existing(db: Session):
 
         second = await run_scan_for_company(company, db)
         assert len(second) == 0
+
+
+@pytest.mark.asyncio
+async def test_orphaned_jobs_are_rescored(db):
+    """Jobs in DB with no Match (matchmaker previously failed) must be scored on the next scan."""
+    from app.models.company import Company
+    from app.models.job import Job
+    from app.models.match import Match
+    from app.scheduler import run_scan_for_company
+    from unittest.mock import AsyncMock, patch
+    from sqlmodel import select
+
+    company = Company(name="OrphanCo", ats_type="greenhouse", ats_slug="orphanco")
+    db.add(company)
+    db.commit()
+    db.refresh(company)
+
+    orphan = Job(
+        company_id=company.id,
+        title="Backend Engineer",
+        url="https://boards.greenhouse.io/orphanco/jobs/99",
+        source="ats_api",
+        content_hash="orphan-hash-99",
+    )
+    db.add(orphan)
+    db.commit()
+    db.refresh(orphan)
+
+    mock_score = {"score": 75, "reasoning": "Good fit", "cv_variant": "general", "score_breakdown": "{}"}
+
+    with patch("app.scheduler._fetch_jobs_for_company", new=AsyncMock(return_value=[])), \
+         patch("app.scheduler.score_job", new=AsyncMock(return_value=mock_score)), \
+         patch("app.scheduler.send_match_notification", new=AsyncMock()):
+        results = await run_scan_for_company(company, db)
+
+    assert len(results) == 1
+    assert results[0]["job_title"] == "Backend Engineer"
+    assert results[0]["score"] == 75
+    match = db.exec(select(Match).where(Match.job_id == orphan.id)).first()
+    assert match is not None

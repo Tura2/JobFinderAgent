@@ -33,7 +33,10 @@ async def _call_openrouter(messages: list[dict]) -> dict:
             },
         )
         resp.raise_for_status()
-        return resp.json()
+        data = resp.json()
+        if "choices" not in data:
+            raise httpx.RequestError(f"OpenRouter returned no choices: {data}")
+        return data
 
 
 async def score_job(

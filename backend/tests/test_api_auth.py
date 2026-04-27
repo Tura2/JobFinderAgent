@@ -29,10 +29,9 @@ def test_login_wrong_password_redirects_with_error(client):
     assert "session" not in resp.cookies
 
 
-def test_logout_clears_cookie_and_redirects(client):
+def test_logout_clears_cookie(client):
     resp = client.post("/auth/logout")
-    assert resp.status_code == 302
-    assert resp.headers["location"] == "/login"
+    assert resp.status_code == 200
     set_cookie = resp.headers.get("set-cookie", "")
     assert "session=" in set_cookie
     assert "max-age=0" in set_cookie.lower()

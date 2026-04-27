@@ -37,7 +37,9 @@ async def login(password: str = Form(...)):
 
 @router.post("/auth/logout")
 async def logout():
-    resp = RedirectResponse("/login", status_code=302)
+    # Return 200 JSON so fetch() receives the Set-Cookie directly (302 responses
+    # are followed silently by fetch, making cookie deletion browser-dependent).
+    resp = JSONResponse({"ok": True})
     resp.delete_cookie("session", httponly=True, samesite="strict")
     return resp
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CheckCircle2, Send, Zap, FileText, SortAsc } from 'lucide-react';
 import { useMatches } from '../contexts/MatchesContext';
 import MatchCard, { Avatar } from '../components/MatchCard';
@@ -12,15 +12,26 @@ export default function MatchQueue() {
   const { matches, loading, error, refresh } = useMatches();
   const [selectedMatch, setSelectedMatch] = useState<MatchDetail | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [applyingId, setApplyingId] = useState<number | null>(null);
+  const [pendingApplyId, setPendingApplyId] = useState<number | null>(null);
   const [chosenVariantId, setChosenVariantId] = useState<number | null>(null);
   const [appliedIds, setAppliedIds] = useState<Set<number>>(new Set());
+  const [didSubmitOpen, setDidSubmitOpen] = useState(false);
   const [sort, setSort] = useState<'score' | 'new'>('score');
 
   const sorted = [...matches].sort((a, b) =>
     sort === 'score' ? b.score - a.score : b.matched_at.localeCompare(a.matched_at)
   );
+
+  // When user returns to the app after opening the ATS form, prompt "Did you submit?"
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && pendingApplyId !== null) {
+        setDidSubmitOpen(true);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [pendingApplyId]);
 
   const handleTap = async (matchId: number) => {
     try {
@@ -36,27 +47,35 @@ export default function MatchQueue() {
     refresh();
   };
 
+  // Card Apply / swipe-right: open detail sheet so user sees what they're applying to
+  // and so we have ats_url available for a synchronous window.open.
   const handleApply = (matchId: number) => {
-    setApplyingId(matchId);
-    setConfirmOpen(true);
+    handleTap(matchId);
   };
 
-  const handleConfirm = async () => {
-    if (!applyingId) return;
-    // Open the window synchronously before the async call — browsers block popups
-    // opened after an await because the user gesture context is consumed.
-    const newWin = window.open('about:blank', '_blank');
-    const result = await api.applyMatch(applyingId, undefined, chosenVariantId ?? undefined);
-    setAppliedIds(s => new Set([...s, applyingId]));
-    setConfirmOpen(false);
-    setApplyingId(null);
+  // Called from the detail sheet Apply button — ats_url is already known, open synchronously.
+  const handleOpenApplication = () => {
+    if (!selectedMatch) return;
+    window.open(selectedMatch.ats_url || selectedMatch.job.url, '_blank');
+    setPendingApplyId(selectedMatch.id);
+    setSheetOpen(false);
+  };
+
+  // User confirmed they submitted the application.
+  const handleDidSubmitYes = async () => {
+    if (!pendingApplyId) return;
+    await api.applyMatch(pendingApplyId, undefined, chosenVariantId ?? undefined);
+    setAppliedIds(s => new Set([...s, pendingApplyId]));
+    setPendingApplyId(null);
     setChosenVariantId(null);
+    setDidSubmitOpen(false);
     refresh();
-    if (result.ats_url && newWin) {
-      newWin.location.href = result.ats_url;
-    } else if (newWin) {
-      newWin.close();
-    }
+  };
+
+  // User dismissed — match stays in queue for later.
+  const handleDidSubmitNo = () => {
+    setPendingApplyId(null);
+    setDidSubmitOpen(false);
   };
 
   if (loading) {
@@ -266,10 +285,7 @@ export default function MatchQueue() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   gap: 8, fontSize: 15, fontWeight: 600, fontFamily: 'inherit',
                 }}
-                onClick={() => {
-                  handleApply(selectedMatch.id);
-                  setSheetOpen(false);
-                }}
+                onClick={handleOpenApplication}
               >
                 <Send size={15} color="#fff" /> Apply Now
               </button>
@@ -279,10 +295,10 @@ export default function MatchQueue() {
       </BottomSheet>
 
       <ConfirmApplied
-        isOpen={confirmOpen}
-        jobTitle={matches.find(m => m.id === applyingId)?.job_title || ''}
-        onConfirm={handleConfirm}
-        onCancel={() => { setConfirmOpen(false); setApplyingId(null); }}
+        isOpen={didSubmitOpen}
+        jobTitle={matches.find(m => m.id === pendingApplyId)?.job_title || ''}
+        onConfirm={handleDidSubmitYes}
+        onCancel={handleDidSubmitNo}
       />
     </div>
   );

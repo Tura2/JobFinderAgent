@@ -100,6 +100,7 @@ class MatchDetail(BaseModel):
     company: CompanyOut
     cv_variant: Optional[CVVariantOut] = None
     ambiguous_variants: list[CVVariantOut] = []
+    ats_url: str = ""
 
 
 class ApplyRequest(BaseModel):
@@ -198,6 +199,8 @@ async def get_match_detail(match_id: int, session: Session = Depends(get_session
         except Exception:
             pass
 
+    ats_url = build_ats_apply_url(job.url, company.ats_type)
+
     return MatchDetail(
         id=match.id, score=match.score, reasoning=match.reasoning,
         status=match.status, matched_at=match.matched_at, reviewed_at=match.reviewed_at,
@@ -209,6 +212,7 @@ async def get_match_detail(match_id: int, session: Session = Depends(get_session
         company=CompanyOut(id=company.id, name=company.name, website=company.website),
         cv_variant=cv_variant,
         ambiguous_variants=ambiguous_variants,
+        ats_url=ats_url,
     )
 
 

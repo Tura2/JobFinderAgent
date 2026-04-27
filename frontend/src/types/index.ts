@@ -48,6 +48,7 @@ export interface MatchDetail {
   company: { id: number; name: string; website: string | null };
   cv_variant: { id: number; name: string; file_path: string; focus_tags: string } | null;
   ambiguous_variants: { id: number; name: string; file_path: string; focus_tags: string }[];
+  ats_url: string;
 }
 
 export interface Application {

@@ -143,6 +143,10 @@ async def run_scan_for_company(company: Company, session: Session) -> list[dict]
         cv_name = match_result["cv_variant"]
         score_breakdown = match_result.get("score_breakdown")
 
+        if score < settings.low_match_floor:
+            logger.debug(f"Score {score} below floor {settings.low_match_floor} for '{job.title}' — discarding")
+            continue
+
         selected = select_cv_variant(cv_name, active_variants)
         cv_variant_id = selected[0].id if selected else None
 

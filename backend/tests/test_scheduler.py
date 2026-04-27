@@ -153,3 +153,33 @@ async def test_orphaned_jobs_are_rescored(db):
     assert results[0]["score"] == 75
     match = db.exec(select(Match).where(Match.job_id == orphan.id)).first()
     assert match is not None
+
+
+@pytest.mark.asyncio
+async def test_score_below_floor_is_not_saved(db):
+    """Jobs scored below low_match_floor must not be saved as matches."""
+    from app.models.company import Company
+    from app.models.job import Job
+    from app.models.match import Match
+    from app.scheduler import run_scan_for_company
+    from unittest.mock import AsyncMock, patch
+    from sqlmodel import select
+
+    company = Company(name="FloorCo", ats_type="greenhouse", ats_slug="floorco")
+    db.add(company)
+    db.commit()
+    db.refresh(company)
+
+    mock_score = {"score": 10, "reasoning": "Irrelevant", "cv_variant": "general", "score_breakdown": "{}"}
+
+    with patch("app.scheduler._fetch_jobs_for_company", new=AsyncMock(return_value=[{
+        "title": "Marketing Manager",
+        "url": "https://boards.greenhouse.io/floorco/jobs/1",
+        "source": "ats_api",
+    }])), \
+         patch("app.scheduler.score_job", new=AsyncMock(return_value=mock_score)):
+        results = await run_scan_for_company(company, db)
+
+    assert results == []
+    matches = list(db.exec(select(Match)).all())
+    assert matches == []

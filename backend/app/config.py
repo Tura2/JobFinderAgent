@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     # Pipeline
     match_threshold: int = 65
+    low_match_floor: int = 30  # scores below this are discarded, not saved as low_match
     scan_interval_hours: int = 4
 
     # Telegram
@@ -25,6 +26,10 @@ class Settings(BaseSettings):
     # App
     pwa_access_token: str
     pwa_base_url: str = "http://localhost:8000"
+
+    @property
+    def allowed_origins(self) -> list[str]:
+        return [o.strip() for o in self.pwa_base_url.split(",") if o.strip()]
 
     # Session auth
     session_secret_key: str

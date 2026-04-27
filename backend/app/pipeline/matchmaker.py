@@ -35,7 +35,7 @@ async def _call_openrouter(messages: list[dict]) -> dict:
         resp.raise_for_status()
         data = resp.json()
         if "choices" not in data:
-            raise httpx.RequestError(f"OpenRouter returned no choices: {data}")
+            raise httpx.RequestError(f"OpenRouter returned no choices (rate-limit?): {data.get('error', data)}")
         return data
 
 

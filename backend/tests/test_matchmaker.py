@@ -1,5 +1,6 @@
 import pytest
 import json
+import httpx
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from app.pipeline.matchmaker import score_job
@@ -106,11 +107,12 @@ async def test_score_job_low_match():
 @pytest.mark.asyncio
 async def test_score_job_api_error_retries_then_returns_none():
     client_instance = AsyncMock()
-    client_instance.post = AsyncMock(side_effect=Exception("API down"))
+    client_instance.post = AsyncMock(side_effect=httpx.RequestError("network down"))
     client_instance.__aenter__ = AsyncMock(return_value=client_instance)
     client_instance.__aexit__ = AsyncMock(return_value=False)
 
-    with patch("app.pipeline.matchmaker.httpx.AsyncClient", return_value=client_instance):
+    with patch("app.pipeline.matchmaker.httpx.AsyncClient", return_value=client_instance), \
+         patch("tenacity.nap.time"):
         result = await score_job(
             job_title="Dev",
             company_name="Co",
@@ -121,6 +123,7 @@ async def test_score_job_api_error_retries_then_returns_none():
         )
 
     assert result is None
+    assert client_instance.post.call_count == 3  # 3 total attempts (1 initial + 2 retries)
 
 
 @pytest.mark.asyncio
@@ -143,7 +146,7 @@ async def test_score_job_rate_limited_200_no_choices_retries_then_returns_none()
         )
 
     assert result is None
-    # tenacity should have retried 3 times
+    # 3 total attempts (1 initial + 2 retries)
     assert client_instance.post.call_count == 3
 
 

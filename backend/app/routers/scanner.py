@@ -3,7 +3,7 @@ from sqlmodel import Session
 
 from app.auth import verify_token
 from app.database import get_session
-from app.scheduler import run_full_scan, scan_state
+from app.scheduler import run_full_scan, scan_state, scheduler
 
 router = APIRouter(dependencies=[Depends(verify_token)])
 
@@ -22,4 +22,6 @@ async def trigger_scan(
 
 @router.get("/scan-status")
 async def get_scan_status():
-    return scan_state
+    job = scheduler.get_job("job_scan")
+    next_run = job.next_run_time.isoformat() if job and job.next_run_time else None
+    return {**scan_state, "next_scan_at": next_run}

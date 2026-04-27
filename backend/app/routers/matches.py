@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlencode, urlparse, urlunparse
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
@@ -135,12 +135,16 @@ async def get_pending_matches(session: Session = Depends(get_session)):
 
 
 @router.get("/near-misses", response_model=list[MatchListItem])
-async def get_near_misses(session: Session = Depends(get_session)):
+async def get_near_misses(
+    min_score: int = Query(default=30, ge=0, le=100),
+    session: Session = Depends(get_session),
+):
     matches = session.exec(
         select(Match, Job, Company)
         .join(Job, Match.job_id == Job.id)
         .join(Company, Job.company_id == Company.id)
         .where(Match.status == "low_match")
+        .where(Match.score >= min_score)
         .order_by(Match.score.desc())
     ).all()
 

@@ -9,27 +9,43 @@ const scoreColor = (s: number) =>
 export default function NearMisses() {
   const [items, setItems] = useState<MatchListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [minScore, setMinScore] = useState(30);
 
   useEffect(() => {
-    api.getNearMisses().then(setItems).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-dvh">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
-      </div>
-    );
-  }
+    setLoading(true);
+    api.getNearMisses(minScore).then(setItems).finally(() => setLoading(false));
+  }, [minScore]);
 
   return (
     <div style={{ paddingBottom: 96, paddingTop: 24, paddingInline: 16 }}>
       <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 700, letterSpacing: '-0.03em' }}>Near Misses</h1>
-      <p style={{ color: '#4b5563', fontSize: 13, marginTop: 2, marginBottom: 18 }}>
+      <p style={{ color: '#4b5563', fontSize: 13, marginTop: 2, marginBottom: 12 }}>
         Below threshold — review manually if interested
       </p>
 
-      {items.length === 0 ? (
+      {/* Score filter slider */}
+      <div style={{ marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ color: '#6b7280', fontSize: 12, whiteSpace: 'nowrap' }}>Min score</span>
+        <input
+          type="range"
+          min={0}
+          max={64}
+          step={5}
+          value={minScore}
+          onChange={e => setMinScore(Number(e.target.value))}
+          style={{ flex: 1, accentColor: '#6366f1' }}
+        />
+        <span style={{
+          color: '#e5e7eb', fontSize: 13, fontWeight: 700,
+          minWidth: 24, textAlign: 'right',
+        }}>{minScore}</span>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center" style={{ height: 120 }}>
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
+        </div>
+      ) : items.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '64px 0' }}>
           <div style={{
             background: '#1a1f2e', border: '1px solid #1f2937', borderRadius: '50%',

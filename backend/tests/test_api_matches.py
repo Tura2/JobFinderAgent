@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from sqlmodel import Session
 
@@ -22,7 +24,7 @@ def _seed_match(db: Session, status="new", score=85) -> tuple:
         location="Remote",
         remote=True,
         source="ats_api",
-        content_hash=f"hash_{score}_{status}",
+        content_hash=f"hash_{score}_{status}_{uuid.uuid4().hex[:8]}",
     )
     db.add(job)
     db.commit()
@@ -116,3 +118,26 @@ def test_apply_generates_prefilled_greenhouse_url(client, db, monkeypatch):
     assert resp.status_code == 200
     data = resp.json()
     assert "email=test" in data["ats_url"] or "email=" in data["ats_url"] or data["ats_url"] != ""
+
+
+def test_near_misses_default_min_score_filters_low(client, db):
+    _seed_match(db, status="low_match", score=60)
+    _seed_match(db, status="low_match", score=20)
+    _seed_match(db, status="low_match", score=5)
+
+    resp = client.get("/matches/near-misses")  # default min_score=30
+    assert resp.status_code == 200
+    scores = [m["score"] for m in resp.json()]
+    assert 60 in scores
+    assert 20 not in scores
+    assert 5 not in scores
+
+
+def test_near_misses_explicit_min_score(client, db):
+    _seed_match(db, status="low_match", score=60)
+    _seed_match(db, status="low_match", score=20)
+
+    resp = client.get("/matches/near-misses?min_score=50")
+    assert resp.status_code == 200
+    scores = [m["score"] for m in resp.json()]
+    assert scores == [60]

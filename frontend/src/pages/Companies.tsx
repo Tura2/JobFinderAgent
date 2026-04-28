@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Plus, Power, Trash2, Building2 } from 'lucide-react';
 import { api } from '../api/client';
 import type { Company } from '../types';
+import BottomSheet from '../components/BottomSheet';
+import CompanyEditSheet from '../components/CompanyEditSheet';
 
 const ATS_TYPES = ['greenhouse', 'lever', 'workday', 'custom', 'linkedin'] as const;
 
@@ -9,10 +11,46 @@ const emptyForm = {
   name: '', ats_type: 'greenhouse', ats_slug: '', career_page_url: '', linkedin_url: '',
 };
 
+function daysAgo(iso: string): number {
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+}
+
+function TestBadge({ company }: { company: Company }) {
+  const dotColor = company.last_test_passed === null
+    ? '#374151'
+    : company.last_test_passed ? '#22c55e' : '#ef4444';
+
+  const dotShadow = company.last_test_passed === true
+    ? '0 0 5px rgba(34,197,94,0.5)'
+    : company.last_test_passed === false
+      ? '0 0 5px rgba(239,68,68,0.5)'
+      : 'none';
+
+  const pillBg = company.last_test_passed === false ? '#1a0505' : '#1f2937';
+  const pillColor = company.last_test_passed === false ? '#ef4444' : '#4b5563';
+
+  return (
+    <>
+      <span style={{
+        width: 7, height: 7, borderRadius: '50%', flexShrink: 0, display: 'inline-block',
+        background: dotColor, boxShadow: dotShadow,
+      }} />
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 3,
+        background: pillBg, borderRadius: 6, padding: '1px 5px',
+        fontSize: 10, color: pillColor, flexShrink: 0,
+      }}>
+        {company.last_test_at ? `🕐 ${daysAgo(company.last_test_at)}d` : '— never'}
+      </span>
+    </>
+  );
+}
+
 export default function Companies() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   const refresh = () => api.getCompanies().then(setCompanies);
   useEffect(() => { refresh(); }, []);
@@ -25,15 +63,22 @@ export default function Companies() {
     refresh();
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
     if (!confirm('Remove this company from your watchlist?')) return;
     await api.deleteCompany(id);
     refresh();
   };
 
-  const handleToggle = async (company: Company) => {
+  const handleToggle = async (e: React.MouseEvent, company: Company) => {
+    e.stopPropagation();
     await api.updateCompany(company.id, { active: !company.active });
     refresh();
+  };
+
+  const handleCompanyUpdated = (updated: Company) => {
+    setCompanies(cs => cs.map(c => c.id === updated.id ? updated : c));
+    if (selectedCompany?.id === updated.id) setSelectedCompany(updated);
   };
 
   const needsSlug = form.ats_type === 'greenhouse' || form.ats_type === 'lever';
@@ -81,7 +126,6 @@ export default function Companies() {
             placeholder="Company name"
             style={{ ...inputStyle, marginBottom: 8 }}
           />
-
           <div style={{ display: 'flex', gap: 5, marginBottom: 10 }}>
             {ATS_TYPES.map(t => (
               <button key={t} onClick={() => setForm({ ...form, ats_type: t })} style={{
@@ -94,7 +138,6 @@ export default function Companies() {
               }}>{t}</button>
             ))}
           </div>
-
           {needsSlug && (
             <input
               placeholder={`${form.ats_type === 'greenhouse' ? 'Greenhouse' : 'Lever'} slug (e.g. vercel)`}
@@ -117,7 +160,6 @@ export default function Companies() {
               style={{ ...inputStyle, marginBottom: 8 }}
             />
           )}
-
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => { setShowAdd(false); setForm(emptyForm); }}
@@ -156,22 +198,28 @@ export default function Companies() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {companies.map(co => (
-            <div key={co.id} style={{
-              background: '#111827', border: '1px solid #1f2937',
-              borderRadius: 16, padding: '12px 14px',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-            }}>
+            <div
+              key={co.id}
+              onClick={() => setSelectedCompany(co)}
+              style={{
+                background: '#111827', border: '1px solid #1f2937',
+                borderRadius: 16, padding: '12px 14px',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+                cursor: 'pointer',
+              }}
+            >
               <div style={{ minWidth: 0 }}>
                 <div style={{ color: co.active ? '#f9fafb' : '#4b5563', fontWeight: 600, fontSize: 15 }}>
                   {co.name}
                 </div>
-                <div style={{ color: '#374151', fontSize: 12 }}>
-                  {co.ats_type}{co.ats_slug ? ` · ${co.ats_slug}` : ''}
+                <div style={{ color: '#374151', fontSize: 12, marginTop: 3, display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <TestBadge company={co} />
+                  <span>{co.ats_type}{co.ats_slug ? ` · ${co.ats_slug}` : ''}</span>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                 <button
-                  onClick={() => handleToggle(co)}
+                  onClick={e => handleToggle(e, co)}
                   style={{
                     background: co.active ? '#031a0e' : '#1a1f2e',
                     border: `1px solid ${co.active ? '#166534' : '#1f2937'}`,
@@ -187,7 +235,7 @@ export default function Companies() {
                   {co.active ? 'Active' : 'Paused'}
                 </button>
                 <button
-                  onClick={() => handleDelete(co.id)}
+                  onClick={e => handleDelete(e, co.id)}
                   style={{
                     background: '#1a0a0a', border: '1px solid #3f1010',
                     borderRadius: 8, padding: 7, cursor: 'pointer',
@@ -202,6 +250,20 @@ export default function Companies() {
           ))}
         </div>
       )}
+
+      <BottomSheet
+        isOpen={selectedCompany !== null}
+        onClose={() => setSelectedCompany(null)}
+        title={selectedCompany?.name ?? ''}
+      >
+        {selectedCompany && (
+          <CompanyEditSheet
+            company={selectedCompany}
+            onClose={() => setSelectedCompany(null)}
+            onUpdated={handleCompanyUpdated}
+          />
+        )}
+      </BottomSheet>
     </div>
   );
 }

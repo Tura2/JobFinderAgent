@@ -143,7 +143,7 @@ async def test_orphaned_jobs_are_rescored(db):
 
     mock_score = {"score": 75, "reasoning": "Good fit", "cv_variant": "general", "score_breakdown": "{}"}
 
-    with patch("app.scheduler._fetch_jobs_for_company", new=AsyncMock(return_value=[])), \
+    with patch("app.scheduler.fetch_jobs_for_company", new=AsyncMock(return_value=[])), \
          patch("app.scheduler.score_job", new=AsyncMock(return_value=mock_score)), \
          patch("app.scheduler.send_match_notification", new=AsyncMock()):
         results = await run_scan_for_company(company, db)
@@ -172,7 +172,7 @@ async def test_score_below_floor_is_not_saved(db):
 
     mock_score = {"score": 10, "reasoning": "Irrelevant", "cv_variant": "general", "score_breakdown": "{}"}
 
-    with patch("app.scheduler._fetch_jobs_for_company", new=AsyncMock(return_value=[{
+    with patch("app.scheduler.fetch_jobs_for_company", new=AsyncMock(return_value=[{
         "title": "Marketing Manager",
         "url": "https://boards.greenhouse.io/floorco/jobs/1",
         "source": "ats_api",

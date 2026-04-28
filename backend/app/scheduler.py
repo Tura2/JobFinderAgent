@@ -207,11 +207,44 @@ async def run_full_scan(session: Session) -> dict:
     return scan_state
 
 
+async def run_health_check(session: Session) -> None:
+    companies = get_active_companies(session)
+    for company in companies:
+        try:
+            jobs = await fetch_jobs_for_company(company)
+            tested_at = datetime.now(timezone.utc)
+            company.last_test_at = tested_at
+            company.last_test_passed = len(jobs) >= 1
+            company.last_test_jobs_found = len(jobs)
+            session.add(company)
+            session.commit()
+            logger.info(f"Health check {company.name}: {'pass' if company.last_test_passed else 'fail'} ({len(jobs)} jobs)")
+        except Exception as e:
+            logger.error(f"Health check failed for {company.name}: {e}")
+
+
+def _health_check_tick():
+    import asyncio
+    from app.database import get_session
+
+    session = next(get_session())
+    try:
+        asyncio.run(run_health_check(session))
+    finally:
+        session.close()
+
+
 def start_scheduler():
     scheduler.add_job(
         _scheduler_tick,
         trigger=IntervalTrigger(hours=settings.scan_interval_hours),
         id="job_scan",
+        replace_existing=True,
+    )
+    scheduler.add_job(
+        _health_check_tick,
+        trigger=IntervalTrigger(days=30),
+        id="company_health_check",
         replace_existing=True,
     )
     scheduler.start()

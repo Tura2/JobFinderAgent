@@ -5,7 +5,7 @@ from sqlmodel import Session
 
 from app.models.company import Company
 from app.models.cv_variant import CVVariant
-from app.scheduler import run_scan_for_company, get_active_companies
+from app.scheduler import run_scan_for_company, get_active_companies, run_health_check
 
 
 def _seed_company(db: Session, **kwargs) -> Company:
@@ -183,3 +183,35 @@ async def test_score_below_floor_is_not_saved(db):
     assert results == []
     matches = list(db.exec(select(Match)).all())
     assert matches == []
+
+
+@pytest.mark.asyncio
+async def test_health_check_updates_pass(db):
+    company = Company(name="TestCo", ats_type="greenhouse", ats_slug="testco")
+    db.add(company)
+    db.commit()
+    db.refresh(company)
+
+    with patch("app.scheduler.fetch_jobs_for_company", new_callable=AsyncMock,
+               return_value=[{"title": "Eng", "url": "u", "description_raw": "", "location": "", "source": "ats_api"}]):
+        await run_health_check(db)
+
+    db.refresh(company)
+    assert company.last_test_passed is True
+    assert company.last_test_jobs_found == 1
+    assert company.last_test_at is not None
+
+
+@pytest.mark.asyncio
+async def test_health_check_skips_inactive(db):
+    company = Company(name="Inactive", ats_type="greenhouse", ats_slug="inactive", active=False)
+    db.add(company)
+    db.commit()
+    db.refresh(company)
+
+    with patch("app.scheduler.fetch_jobs_for_company", new_callable=AsyncMock, return_value=[]) as mock_fetch:
+        await run_health_check(db)
+
+    mock_fetch.assert_not_called()
+    db.refresh(company)
+    assert company.last_test_at is None

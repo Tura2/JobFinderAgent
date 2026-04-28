@@ -8,6 +8,15 @@ export interface Company {
   career_page_url: string | null;
   active: boolean;
   added_at: string;
+  last_test_at: string | null;
+  last_test_passed: boolean | null;
+  last_test_jobs_found: number | null;
+}
+
+export interface TestResult {
+  passed: boolean;
+  jobs_found: number;
+  tested_at: string;
 }
 
 export interface Job {

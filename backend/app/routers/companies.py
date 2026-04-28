@@ -87,7 +87,17 @@ async def test_company_fetch(
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
 
-    jobs = await fetch_jobs_for_company(company)
+    try:
+        jobs = await fetch_jobs_for_company(company)
+    except Exception:
+        tested_at = datetime.now(timezone.utc)
+        company.last_test_at = tested_at
+        company.last_test_passed = False
+        company.last_test_jobs_found = 0
+        session.add(company)
+        session.commit()
+        return CompanyTestResult(passed=False, jobs_found=0, tested_at=tested_at)
+
     tested_at = datetime.now(timezone.utc)
     passed = len(jobs) >= 1
 

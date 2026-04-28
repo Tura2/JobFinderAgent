@@ -15,3 +15,6 @@ class Company(SQLModel, table=True):
     career_page_url: Optional[str] = None
     active: bool = True
     added_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_test_at: Optional[datetime] = Field(default=None)
+    last_test_passed: Optional[bool] = Field(default=None)
+    last_test_jobs_found: Optional[int] = Field(default=None)

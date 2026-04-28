@@ -56,6 +56,8 @@ export const api = {
     }),
   deleteCompany: (id: number) =>
     apiFetch<{ deleted: boolean }>(`/companies/${id}`, { method: "DELETE" }),
+  testCompany: (id: number) =>
+    apiFetch<import("../types").TestResult>(`/companies/${id}/test`, { method: "POST" }),
 
   getCVVariants: () => apiFetch<import("../types").CVVariant[]>("/cv-variants"),
   addCVVariant: (data: { name: string; file_path: string; focus_tags: string }) =>

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -6,6 +7,7 @@ from sqlmodel import Session, select
 
 from app.database import get_session
 from app.models.company import Company
+from app.scheduler import fetch_jobs_for_company
 
 router = APIRouter()
 
@@ -68,3 +70,31 @@ async def delete_company(company_id: int, session: Session = Depends(get_session
     session.delete(company)
     session.commit()
     return {"deleted": True, "id": company_id}
+
+
+class CompanyTestResult(BaseModel):
+    passed: bool
+    jobs_found: int
+    tested_at: datetime
+
+
+@router.post("/{company_id}/test")
+async def test_company_fetch(
+    company_id: int,
+    session: Session = Depends(get_session),
+) -> CompanyTestResult:
+    company = session.get(Company, company_id)
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+
+    jobs = await fetch_jobs_for_company(company)
+    tested_at = datetime.now(timezone.utc)
+    passed = len(jobs) >= 1
+
+    company.last_test_at = tested_at
+    company.last_test_passed = passed
+    company.last_test_jobs_found = len(jobs)
+    session.add(company)
+    session.commit()
+
+    return CompanyTestResult(passed=passed, jobs_found=len(jobs), tested_at=tested_at)

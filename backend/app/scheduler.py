@@ -71,7 +71,7 @@ def get_active_companies(session: Session) -> list[Company]:
     return list(session.exec(select(Company).where(Company.active == True)).all())
 
 
-async def _fetch_jobs_for_company(company: Company) -> list[dict]:
+async def fetch_jobs_for_company(company: Company) -> list[dict]:
     if company.ats_type == "greenhouse" and company.ats_slug:
         return await fetch_greenhouse_jobs(company.ats_slug)
     elif company.ats_type == "lever" and company.ats_slug:
@@ -86,7 +86,7 @@ async def _fetch_jobs_for_company(company: Company) -> list[dict]:
 
 
 async def run_scan_for_company(company: Company, session: Session) -> list[dict]:
-    raw_jobs = await _fetch_jobs_for_company(company)
+    raw_jobs = await fetch_jobs_for_company(company)
     if not raw_jobs:
         raw_jobs = []
 

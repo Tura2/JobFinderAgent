@@ -39,13 +39,52 @@ EXCLUDED_TITLE_KEYWORDS = [
     "human resources", "marketing manager", "content manager", "social media",
     "finance manager", "accountant", "legal", "paralegal", "office manager",
     "operations manager", "product designer", "ux designer", "ui designer",
-    "graphic designer",
+    "graphic designer", "presales", "pre-sales", "project manager", "program manager",
+]
+
+INCLUDED_TITLE_KEYWORDS = [
+    "engineer", "developer", "architect",
+    "full stack", "fullstack", "full-stack",
+    "frontend", "front-end",
+    "backend", "back-end",
+    "software", "r&d",
+    "devops", "dev ops", "site reliability",
+    "data scientist", "machine learning",
+    "researcher", "scientist",
+    "tech lead", "technical lead", "team lead",
+]
+
+ISRAEL_LOCATION_KEYWORDS = [
+    "israel", "tel aviv", "netanya", "herzliya", "herzelia", "haifa",
+    "petah tikva", "petah tiqwa", "petah", "rishon", "rehovot",
+    "raanana", "ra'anana", "beer sheva", "beersheba", "kfar saba",
+    "modi'in", "modin", "jerusalem", "yahud", "yehud", "bnei brak",
+    "holon", "bat yam", "ramat gan", "givatayim", "ness ziona",
+    "lod", "ramla", "airport city", "rosh haayin", "rosh ha'ayin", "kiryat",
 ]
 
 
 def _is_excluded_title(title: str) -> bool:
     lower = title.lower()
     return any(kw in lower for kw in EXCLUDED_TITLE_KEYWORDS)
+
+
+def _is_relevant_dev_role(title: str) -> bool:
+    lower = title.lower()
+    return any(kw in lower for kw in INCLUDED_TITLE_KEYWORDS)
+
+
+def _is_location_relevant(location: str | None) -> bool:
+    if not location:
+        return True
+    lower = location.lower().strip()
+    if any(kw in lower for kw in ISRAEL_LOCATION_KEYWORDS):
+        return True
+    # Any remote mention is kept — LLM scores location mismatch; remote roles are
+    # worth scoring since Israeli candidates can apply to global remote positions.
+    if "remote" in lower:
+        return True
+    return False
 
 
 def _load_user_profile() -> str:
@@ -110,7 +149,12 @@ async def run_scan_for_company(company: Company, session: Session) -> list[dict]
     ]
 
     jobs_to_score = new_jobs + unscored_jobs
-    filtered_jobs = [j for j in jobs_to_score if not _is_excluded_title(j.title)]
+    filtered_jobs = [
+        j for j in jobs_to_score
+        if not _is_excluded_title(j.title)
+        and _is_relevant_dev_role(j.title)
+        and _is_location_relevant(j.location)
+    ]
     skipped = len(jobs_to_score) - len(filtered_jobs)
     if skipped:
         logger.info(f"Pre-filter skipped {skipped} irrelevant titles for {company.name}")

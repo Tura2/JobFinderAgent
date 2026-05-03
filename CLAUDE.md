@@ -37,13 +37,23 @@ Set `OPENROUTER_MODEL` in `.env`. Best **free** options ranked for this use case
 
 | Model ID | Why good |
 |---|---|
-| `openai/gpt-oss-120b:free` | **Current pick** — strong reasoning, reliable JSON output |
-| `meta-llama/llama-3.3-70b-instruct:free` | Excellent instruction following, 70B capability |
-| `google/gemma-3-27b-it:free` | Solid fallback, good context window |
+| `meta-llama/llama-3.3-70b-instruct:free` | **Current pick** — IFEval 92.1% (best instruction following), 14 providers, most reliable `json_object` support |
+| `nvidia/nemotron-3-super-120b-a12b:free` | Agentic-first design, hardware-accelerated structured output |
+| `google/gemma-4-31b-it:free` | Strong benchmarks (GPQA 84.3%), native function calling — but new, test before committing |
 
-> **Note (2026-04-19):** DeepSeek free tier was removed from OpenRouter — do not use `deepseek/*:free` routes.
+> **Avoid:**
+> - `openai/gpt-oss-120b:free` — `json_schema` mode broken on some providers; use with explicit JSON prompt only
+> - `google/gemma-3-27b-it:free` — JSON/tool mode confirmed broken on free tier (400 errors)
+> - `deepseek/*:free` — removed from OpenRouter free tier (2026-04-19)
+> - `qwen/qwen3-35b-a3b:free` — removed from OpenRouter (caused 400 errors May 2026)
 
 The matchmaker uses `response_format: {type: "json_object"}` so any model that supports that mode works best.
+
+### Rate limits
+
+- **Without credits:** 20 RPM / 50 RPD — insufficient for a 50-job scan (burns entire daily budget in one run)
+- **With $10+ credits loaded:** 20 RPM / 1,000 RPD — ~20 full scans/day at no extra per-token cost on free models
+- Credits are consumed only for paid models; free `:free` models stay free regardless of credit balance
 
 ## Architecture
 
@@ -56,9 +66,16 @@ APScheduler (every SCAN_INTERVAL_HOURS)
   → Ingestion layer (ATS API fetcher or Scrapling scraper per company)
   → Normalizer (unified job schema)
   → Dedup (content_hash = hash(company_id + title + url))
+  → Pre-filter: title allowlist (dev/R&D keywords) + blocklist + Israel/remote location
   → AI Matchmaker via OpenRouter (score 0–100)
   → score ≥ MATCH_THRESHOLD → CV Selector → SQLite match saved → Telegram notification
 ```
+
+**Pre-filter logic** (`backend/app/scheduler.py`):
+- **Allowlist** (`INCLUDED_TITLE_KEYWORDS`): only jobs whose title contains engineering/dev keywords (engineer, developer, architect, full stack, frontend, backend, software, r&d, devops, data scientist, machine learning, tech lead). Saves ~88% of LLM tokens on non-dev-heavy companies like NICE.
+- **Blocklist** (`EXCLUDED_TITLE_KEYWORDS`): explicit non-dev roles regardless of title (account executive, sales, customer success, presales, project manager, program manager, etc.).
+- **Location filter** (`ISRAEL_LOCATION_KEYWORDS`): keep jobs with no location, Israel cities, or any "remote" mention. Skip jobs with on-site locations outside Israel. The LLM `location` subscore (max 10 pts) further penalises non-Israel remotes.
+- **Recovery**: jobs that were ingested but never scored (matchmaker failure) are automatically picked up on the next scan via the `unscored_jobs` query — no manual reset needed.
 
 ### Module map
 

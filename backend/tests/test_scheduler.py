@@ -47,7 +47,7 @@ async def test_run_scan_for_greenhouse_company(db: Session):
     cv = _seed_cv(db)
 
     mock_raw_jobs = [
-        {"title": "Dev", "url": "http://x.com/1", "description_raw": "Build stuff", "location": "Remote", "source": "ats_api"},
+        {"title": "Software Developer", "url": "http://x.com/1", "description_raw": "Build stuff", "location": "Remote", "source": "ats_api"},
     ]
 
     with patch("app.scheduler.fetch_greenhouse_jobs", new_callable=AsyncMock, return_value=mock_raw_jobs), \
@@ -71,7 +71,7 @@ async def test_run_scan_low_score_no_notification(db: Session):
     cv = _seed_cv(db)
 
     mock_raw_jobs = [
-        {"title": "Java Architect", "url": "http://x.com/2", "description_raw": "Java EE", "location": "Austin", "source": "ats_api"},
+        {"title": "Java Architect", "url": "http://x.com/2", "description_raw": "Java EE", "location": "Tel Aviv", "source": "ats_api"},
     ]
 
     with patch("app.scheduler.fetch_greenhouse_jobs", new_callable=AsyncMock, return_value=mock_raw_jobs), \
@@ -95,7 +95,7 @@ async def test_run_scan_dedup_skips_existing(db: Session):
     cv = _seed_cv(db)
 
     mock_raw_jobs = [
-        {"title": "Dev", "url": "http://x.com/1", "description_raw": "Build", "location": "", "source": "ats_api"},
+        {"title": "Software Developer", "url": "http://x.com/1", "description_raw": "Build", "location": "", "source": "ats_api"},
     ]
 
     with patch("app.scheduler.fetch_greenhouse_jobs", new_callable=AsyncMock, return_value=mock_raw_jobs), \

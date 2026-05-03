@@ -31,7 +31,15 @@ export default function Settings() {
     return s;
   };
 
-  useEffect(() => { fetchStatus(); }, []);
+  useEffect(() => {
+    fetchStatus().then(s => {
+      if (s.is_running) {
+        setScanning(true);
+        startProgress();
+        startPolling();
+      }
+    });
+  }, []);
 
   useEffect(() => {
     api.getConfig().then(c => setLinkedinUrl(c.linkedin_url)).catch(() => {});
@@ -63,7 +71,7 @@ export default function Settings() {
         setScanning(false);
         stopProgress();
       }
-    }, 2000);
+    }, 5000);
   };
 
   useEffect(() => () => {

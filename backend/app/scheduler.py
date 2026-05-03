@@ -146,7 +146,7 @@ async def run_scan_for_company(company: Company, session: Session) -> list[dict]
     unscored_jobs = [
         j for j in all_company_jobs
         if j.id not in scored_job_ids and j.id not in new_job_ids
-    ]
+    ][:settings.scan_batch_size]
 
     jobs_to_score = new_jobs + unscored_jobs
     filtered_jobs = [

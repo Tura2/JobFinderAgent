@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import httpx
@@ -32,6 +33,10 @@ async def _call_openrouter(messages: list[dict]) -> dict:
                 "temperature": 0.3,
             },
         )
+        if resp.status_code == 429:
+            retry_after = int(resp.headers.get("Retry-After", 60))
+            logger.warning(f"OpenRouter rate-limited — waiting {retry_after}s (Retry-After)")
+            await asyncio.sleep(retry_after)
         resp.raise_for_status()
         data = resp.json()
         if "choices" not in data:

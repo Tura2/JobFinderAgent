@@ -13,7 +13,7 @@ def test_settings_loads_defaults():
         pwa_access_token="test-token",
         session_secret_key="test-secret",
     )
-    assert s.openrouter_model == "anthropic/claude-opus-4.5"
+    assert s.openrouter_model == "deepseek/deepseek-v4-flash"
     assert s.match_threshold == 65
     assert s.scan_interval_hours == 4
     assert s.database_url == "sqlite:///./jobfinder.db"

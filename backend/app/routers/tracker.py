@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
@@ -21,16 +21,26 @@ class ApplicationUpdate(BaseModel):
 
 
 @router.get("/tracker")
-async def get_tracker(session: Session = Depends(get_session)):
+async def get_tracker(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=50, ge=1, le=200),
+    session: Session = Depends(get_session),
+):
+    from fastapi.responses import JSONResponse
+    from sqlmodel import func
+
+    total = session.exec(select(func.count()).select_from(Application)).one()
     results = session.exec(
         select(Application, Match, Job, Company)
         .join(Match, Application.match_id == Match.id)
         .join(Job, Match.job_id == Job.id)
         .join(Company, Job.company_id == Company.id)
         .order_by(Application.applied_at.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
     ).all()
 
-    return [
+    items = [
         {
             "id": app.id,
             "match_id": app.match_id,
@@ -44,6 +54,7 @@ async def get_tracker(session: Session = Depends(get_session)):
         }
         for app, match, job, company in results
     ]
+    return JSONResponse(content=items, headers={"X-Total-Count": str(total)})
 
 
 @router.patch("/applications/{app_id}")

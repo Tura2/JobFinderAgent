@@ -117,29 +117,52 @@ class ApplyResponse(BaseModel):
 # --- Endpoints ---
 
 @router.get("", response_model=list[MatchListItem])
-async def get_pending_matches(session: Session = Depends(get_session)):
+async def get_pending_matches(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=50, ge=1, le=200),
+    session: Session = Depends(get_session),
+):
+    from fastapi import Response
+    from sqlmodel import func
+
+    total = session.exec(
+        select(func.count()).select_from(Match).where(Match.status == "new")
+    ).one()
     matches = session.exec(
         select(Match, Job, Company)
         .join(Job, Match.job_id == Job.id)
         .join(Company, Job.company_id == Company.id)
         .where(Match.status == "new")
         .order_by(Match.score.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
     ).all()
 
-    return [
+    from fastapi.responses import JSONResponse
+    items = [
         MatchListItem(
             id=m.id, score=m.score, reasoning=m.reasoning, status=m.status,
             matched_at=m.matched_at, job_title=j.title, company_name=c.name,
-        )
+        ).model_dump(mode="json")
         for m, j, c in matches
     ]
+    return JSONResponse(content=items, headers={"X-Total-Count": str(total)})
 
 
 @router.get("/near-misses", response_model=list[MatchListItem])
 async def get_near_misses(
     min_score: int = Query(default=30, ge=0, le=100),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=50, ge=1, le=200),
     session: Session = Depends(get_session),
 ):
+    from sqlmodel import func
+
+    total = session.exec(
+        select(func.count()).select_from(Match)
+        .where(Match.status == "low_match")
+        .where(Match.score >= min_score)
+    ).one()
     matches = session.exec(
         select(Match, Job, Company)
         .join(Job, Match.job_id == Job.id)
@@ -147,15 +170,19 @@ async def get_near_misses(
         .where(Match.status == "low_match")
         .where(Match.score >= min_score)
         .order_by(Match.score.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
     ).all()
 
-    return [
+    from fastapi.responses import JSONResponse
+    items = [
         MatchListItem(
             id=m.id, score=m.score, reasoning=m.reasoning, status=m.status,
             matched_at=m.matched_at, job_title=j.title, company_name=c.name,
-        )
+        ).model_dump(mode="json")
         for m, j, c in matches
     ]
+    return JSONResponse(content=items, headers={"X-Total-Count": str(total)})
 
 
 @router.get("/{match_id}", response_model=MatchDetail)

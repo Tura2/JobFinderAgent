@@ -33,11 +33,19 @@ npx vitest run                  # frontend unit tests
 
 ## Recommended OpenRouter Model
 
-Set `OPENROUTER_MODEL` in `.env`. Best **free** options ranked for this use case (structured JSON scoring):
+Set `OPENROUTER_MODEL` in `.env`.
+
+**Recommended paid model (default):**
 
 | Model ID | Why good |
 |---|---|
-| `meta-llama/llama-3.3-70b-instruct:free` | **Current pick** — IFEval 92.1% (best instruction following), 14 providers, most reliable `json_object` support |
+| `deepseek/deepseek-v4-flash` | **Default** — fast, cheap, excellent JSON output, reliable `json_object` support |
+
+**Best free options** (set if you have no credits):
+
+| Model ID | Why good |
+|---|---|
+| `meta-llama/llama-3.3-70b-instruct:free` | IFEval 92.1% (best instruction following), 14 providers, most reliable `json_object` support |
 | `nvidia/nemotron-3-super-120b-a12b:free` | Agentic-first design, hardware-accelerated structured output |
 | `google/gemma-4-31b-it:free` | Strong benchmarks (GPQA 84.3%), native function calling — but new, test before committing |
 

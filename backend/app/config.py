@@ -12,12 +12,13 @@ class Settings(BaseSettings):
 
     # LLM
     openrouter_api_key: str
-    openrouter_model: str = "anthropic/claude-opus-4.5"
+    openrouter_model: str = "deepseek/deepseek-v4-flash"
 
     # Pipeline
     match_threshold: int = 65
     low_match_floor: int = 30  # scores below this are discarded, not saved as low_match
     scan_interval_hours: int = 4
+    scan_batch_size: int = 50
 
     # Telegram
     telegram_bot_token: str

@@ -47,7 +47,7 @@ The sub-scores and their weights:
 | Layer | Tech |
 |---|---|
 | Backend | FastAPI, SQLModel, APScheduler, Scrapling |
-| AI | OpenRouter (default: `openai/gpt-oss-120b:free`) |
+| AI | OpenRouter (default: `deepseek/deepseek-v4-flash`) |
 | Database | SQLite |
 | Frontend | React 18, Vite, Tailwind CSS |
 | Notifications | Telegram Bot API |
@@ -96,7 +96,7 @@ All config lives in `backend/.env`:
 | Variable | Purpose |
 |---|---|
 | `OPENROUTER_API_KEY` | Get one free at [openrouter.ai](https://openrouter.ai) |
-| `OPENROUTER_MODEL` | LLM to use (default: `openai/gpt-oss-120b:free`) |
+| `OPENROUTER_MODEL` | LLM to use (default: `deepseek/deepseek-v4-flash`) |
 | `MATCH_THRESHOLD` | Minimum score to trigger an alert (default: 65) |
 | `SCAN_INTERVAL_HOURS` | How often to scan (default: 4) |
 | `TELEGRAM_BOT_TOKEN` | Create a bot via [@BotFather](https://t.me/BotFather) |

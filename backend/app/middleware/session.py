@@ -8,6 +8,7 @@ from starlette.responses import JSONResponse, RedirectResponse
 
 # /config is public so the frontend can read applicant_linkedin_url before login
 PUBLIC_PATHS = {"/login", "/auth/login", "/auth/logout", "/health", "/config"}
+PUBLIC_PREFIXES = ("/assets/", "/manifest.json", "/favicon")
 
 
 def _sign(secret: str, expiry: int) -> str:
@@ -32,7 +33,7 @@ def verify_session_cookie(secret: str, value: str) -> bool:
 
 class SessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        if request.url.path in PUBLIC_PATHS:
+        if request.url.path in PUBLIC_PATHS or request.url.path.startswith(PUBLIC_PREFIXES):
             return await call_next(request)
         from app.config import settings
         cookie = request.cookies.get("session", "")

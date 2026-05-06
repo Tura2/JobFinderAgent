@@ -68,6 +68,7 @@ async def login(request: Request, password: str = Form(...)):
         max_age=settings.session_max_age_days * 86400,
         httponly=True,
         samesite="strict",
+        secure=True,
     )
     return resp
 
@@ -77,7 +78,7 @@ async def logout():
     # Return 200 JSON so fetch() receives the Set-Cookie directly (302 responses
     # are followed silently by fetch, making cookie deletion browser-dependent).
     resp = JSONResponse({"ok": True})
-    resp.delete_cookie("session", httponly=True, samesite="strict")
+    resp.delete_cookie("session", httponly=True, samesite="strict", secure=True)
     return resp
 
 

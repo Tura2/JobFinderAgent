@@ -45,6 +45,99 @@ bash scripts/deploy.sh
 
 ---
 
+## nginx + HTTPS setup (one-time, after first deploy)
+
+This sets up nginx as a reverse proxy with a Let's Encrypt TLS certificate so the app
+is reachable only via HTTPS. Port 8000 is firewalled off from the outside.
+
+### Prerequisites
+
+- A domain or free subdomain pointing to the VM's public IP (e.g. via [duckdns.org](https://www.duckdns.org))
+- Oracle Cloud Security List: ports **80** and **443** open as ingress rules (`0.0.0.0/0`, TCP)
+
+### Install nginx and certbot
+
+```bash
+sudo apt update
+sudo apt install -y nginx certbot python3-certbot-nginx
+```
+
+### Create the nginx server block
+
+```bash
+sudo nano /etc/nginx/sites-available/jobfinder
+```
+
+```nginx
+server {
+    listen 80;
+    server_name <your-domain>;
+
+    location / {
+        proxy_pass         http://127.0.0.1:8000;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        client_max_body_size 10M;
+    }
+}
+```
+
+```bash
+sudo ln -s /etc/nginx/sites-available/jobfinder /etc/nginx/sites-enabled/
+sudo nginx -t          # must print "syntax is ok"
+sudo systemctl reload nginx
+```
+
+### Open ports in the OS firewall
+
+```bash
+sudo iptables -I INPUT 6 -p tcp --dport 80  -j ACCEPT
+sudo iptables -I INPUT 7 -p tcp --dport 443 -j ACCEPT
+sudo netfilter-persistent save
+```
+
+### Get the TLS certificate
+
+```bash
+sudo certbot --nginx -d <your-domain>
+```
+
+Certbot edits the nginx config automatically and sets up auto-renewal via a systemd timer.
+Certificate expires after 90 days and renews automatically.
+
+Test renewal: `sudo certbot renew --dry-run`
+
+### Block port 8000 from outside
+
+```bash
+sudo iptables -D INPUT -p tcp --dport 8000 -j ACCEPT
+sudo iptables -I INPUT 10 -p tcp --dport 8000 -s 127.0.0.1 -j ACCEPT
+sudo netfilter-persistent save
+```
+
+Also delete the port 8000 ingress rule in the Oracle Cloud Security List console.
+
+### Update frontend VITE_API_URL
+
+In `frontend/.env.local` on your dev machine:
+
+```env
+VITE_API_URL=https://<your-domain>
+```
+
+Rebuild and redeploy:
+
+```bash
+npm run build   # in frontend/
+git push origin main
+# on VM:
+cd ~/JobFinderAgent && git pull origin main && sudo systemctl restart jobfinder
+```
+
+---
+
 ## Configure environment variables
 
 ```bash
@@ -74,8 +167,8 @@ PWA_ACCESS_TOKEN=<pick a strong random password>
 SESSION_SECRET_KEY=<generate: python3 -c "import secrets; print(secrets.token_hex(32))">
 SESSION_MAX_AGE_DAYS=30
 
-# App
-PWA_BASE_URL=http://<VM_IP>:8000
+# App — use HTTPS domain if nginx + certbot are configured (see below)
+PWA_BASE_URL=https://<your-domain>
 
 # Database
 DATABASE_URL=sqlite:///./jobfinder.db
@@ -182,11 +275,14 @@ For each broken company, look up the correct slug at:
 ## Verify the deployment
 
 ```bash
-# Health check
+# Health check (internal — always works)
 curl http://localhost:8000/health
 
+# Health check via nginx/HTTPS (if configured)
+curl https://<your-domain>/health
+
 # Open the PWA in your browser
-http://<VM_IP>:8000
+https://<your-domain>
 # → You'll see the login page. Enter your PWA_ACCESS_TOKEN as the password.
 ```
 
@@ -210,9 +306,10 @@ sudo systemctl restart jobfinder
 
 The app uses **HMAC-signed session cookies** (not Bearer tokens).
 
-- Visit `http://<VM_IP>:8000` → redirected to `/login`
+- Visit `https://<your-domain>` → redirected to `/login`
 - Enter `PWA_ACCESS_TOKEN` as the password → sets a `session` cookie
 - Cookie is valid for `SESSION_MAX_AGE_DAYS` days (default 30)
+- Cookie has `Secure; HttpOnly; SameSite=Lax` flags (HTTPS only)
 - All API routes return `401 JSON` for API clients, `302 → /login` for browsers
 - Public paths (no auth needed): `/login`, `/auth/login`, `/auth/logout`, `/health`, `/config`
 

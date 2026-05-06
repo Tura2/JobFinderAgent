@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pathlib import Path
 
 from app.config import settings
@@ -54,7 +55,14 @@ async def health_check():
 
 pwa_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
 if pwa_dist.exists():
-    app.mount("/", StaticFiles(directory=str(pwa_dist), html=True), name="pwa")
+    app.mount("/assets", StaticFiles(directory=str(pwa_dist / "assets")), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        file_path = pwa_dist / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(pwa_dist / "index.html")
 
 
 if __name__ == "__main__":

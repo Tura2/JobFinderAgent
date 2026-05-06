@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     match_threshold: int = 65
     low_match_floor: int = 30  # scores below this are discarded, not saved as low_match
     scan_interval_hours: int = 4
-    scan_batch_size: int = 50
+    scan_batch_size: int = 10  # max unscored jobs recovered per company per scan; raise on paid tier
 
     # Telegram
     telegram_bot_token: str

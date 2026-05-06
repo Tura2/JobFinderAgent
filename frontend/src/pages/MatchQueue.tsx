@@ -16,6 +16,8 @@ export default function MatchQueue() {
   const [chosenVariantId, setChosenVariantId] = useState<number | null>(null);
   const [appliedIds, setAppliedIds] = useState<Set<number>>(new Set());
   const [didSubmitOpen, setDidSubmitOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [sort, setSort] = useState<'score' | 'new'>('score');
 
   const sorted = [...matches].sort((a, b) =>
@@ -64,17 +66,26 @@ export default function MatchQueue() {
   // User confirmed they submitted the application.
   const handleDidSubmitYes = async () => {
     if (!pendingApplyId) return;
-    await api.applyMatch(pendingApplyId, undefined, chosenVariantId ?? undefined);
-    setAppliedIds(s => new Set([...s, pendingApplyId]));
-    setPendingApplyId(null);
-    setChosenVariantId(null);
-    setDidSubmitOpen(false);
-    refresh();
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      await api.applyMatch(pendingApplyId, undefined, chosenVariantId ?? undefined);
+      setAppliedIds(s => new Set([...s, pendingApplyId]));
+      setPendingApplyId(null);
+      setChosenVariantId(null);
+      setDidSubmitOpen(false);
+      refresh();
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to save — please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // User dismissed — match stays in queue for later.
   const handleDidSubmitNo = () => {
     setPendingApplyId(null);
+    setSubmitError(null);
     setDidSubmitOpen(false);
   };
 
@@ -297,6 +308,8 @@ export default function MatchQueue() {
       <ConfirmApplied
         isOpen={didSubmitOpen}
         jobTitle={matches.find(m => m.id === pendingApplyId)?.job_title || ''}
+        loading={submitting}
+        error={submitError}
         onConfirm={handleDidSubmitYes}
         onCancel={handleDidSubmitNo}
       />
